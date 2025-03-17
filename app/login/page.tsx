@@ -18,7 +18,7 @@ export default function LoginPage() {
       <Card className="w-full max-w-md shadow-lg">
         <CardHeader className="space-y-1">
           <CardTitle className="text-2xl font-bold text-center">Iniciar sesión</CardTitle>
-          <CardDescription className="text-center">Ingresa tus credenciales para acceder a tu cuenta</CardDescription>
+          <CardDescription className="text-center">In a tu cuenta</CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
           <div className="space-y-2">
