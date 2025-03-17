@@ -13,7 +13,7 @@ import {
 } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
+
 import { Dumbbell } from "lucide-react";
 import { createPersonalData } from "../services/personal_data";
 import HealthForm from "./datosMedicos/datos_medicos";
@@ -24,6 +24,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import PersonalDataForm from "./datosPersonales/datos_personales";
 
 export default function DatosFisicosPage() {
   const [step, setStep] = useState(1);
@@ -36,6 +37,7 @@ export default function DatosFisicosPage() {
     lesionesDetalles: "",
     confirmacion: false,
   });
+
 
   // Manejar cambios en los inputs
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -50,28 +52,15 @@ export default function DatosFisicosPage() {
 
   // Enviar datos personales
   const handleSubmitPersonalData = async () => {
+    console.log("Ejecutando handleSubmitPersonalData...");
     try {
-      const datosAEnviar = {
-        id: 1,
-        user_id: 1,
-        nombre: "Valentina",
-        edad: parseInt(formData.edad, 10),
-        genero:
-          formData.genero === "masculino"
-            ? "M"
-            : formData.genero === "femenino"
-            ? "F"
-            : "Otro",
-        correo: "vrfgf3pf@gmail.com",
-      };
-      const response = await createPersonalData(datosAEnviar);
-      console.log("Respuesta del servidor:", response);
-      setStep(2);
+      console.log("Datos personales enviados:", formData);
+      setStep(2); // Cambia al paso 2
     } catch (error) {
-      console.error("Error al enviar los datos personales:", error);
+      console.error("Error:", error);
     }
   };
-
+  
   // Enviar datos médicos
   const handleSubmitHealthData = async () => {
     console.log("Datos médicos enviados:", formData);
@@ -110,55 +99,11 @@ export default function DatosFisicosPage() {
         </div>
 
         {step === 1 && (
-          <Card className="w-full shadow-lg">
-            <CardHeader>
-              <CardTitle>Información personal</CardTitle>
-              <CardDescription>
-                Ingresa tu información personal para conocerte mejor
-              </CardDescription>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <div className="space-y-2">
-                <Label htmlFor="edad">Edad</Label>
-                <Input
-                  id="edad"
-                  type="number"
-                  placeholder="30"
-                  value={formData.edad}
-                  onChange={handleInputChange}
-                />
-              </div>
-
-              <div className="space-y-2">
-                <Label>Género</Label>
-                <RadioGroup
-                  value={formData.genero}
-                  onValueChange={handleGeneroChange}
-                  className="flex space-x-4"
-                >
-                  <div className="flex items-center space-x-2">
-                    <RadioGroupItem value="masculino" id="masculino" />
-                    <Label htmlFor="masculino">Masculino</Label>
-                  </div>
-                  <div className="flex items-center space-x-2">
-                    <RadioGroupItem value="femenino" id="femenino" />
-                    <Label htmlFor="femenino">Femenino</Label>
-                  </div>
-                  <div className="flex items-center space-x-2">
-                    <RadioGroupItem value="otro" id="otro" />
-                    <Label htmlFor="otro">Otro</Label>
-                  </div>
-                </RadioGroup>
-              </div>
-            </CardContent>
-            <CardFooter>
-              <Button className="w-full" onClick={handleSubmitPersonalData}>
-                Continuar
-              </Button>
-            </CardFooter>
-          </Card>
+        <PersonalDataForm handleGeneroChange={handleGeneroChange} formData={formData}
+         setFormData={setFormData}
+         onSubmit={handleSubmitPersonalData} />
         )}
- {step === 2 && (
+        {step === 2 && (
           <Card className="w-full shadow-lg">
             <CardHeader>
               <CardTitle>Objetivos de entrenamiento</CardTitle>
@@ -262,7 +207,6 @@ export default function DatosFisicosPage() {
             onSubmit={handleSubmitHealthData}
           />
         )}
-
       </div>
     </div>
   );
