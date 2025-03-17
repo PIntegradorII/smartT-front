@@ -42,31 +42,38 @@ export interface HealthFormProps {
       setFormData((prev: any) => ({ ...prev, [id]: value }));
     };
     const handleSubmitHealthData = async () => {
-        const datosAEnviar = {
-            id: 1,
-            user_id: 1,
-            tiene_condiciones: "true",
-            detalle_condiciones: formData.condicionesDetalles,
-            lesiones: "ddd",
-            confirmacion: "cec",
-        };
-        console.log("DAROS", datosAEnviar)
-        try {
-          const response = await createHealthData(datosAEnviar);
-          console.log("DAROS", datosAEnviar)
-          console.log("Respuesta del servidor:", response);
-          onSubmit(); // Avanzar al siguiente paso o completar el proceso
-        } catch (error) {
-          if (error instanceof Error) {
-            console.error(
-              "Error al enviar los datos:",
-              (error as any).response?.data || error.message
-            );
-          } else {
-            console.error("Error desconocido:", error);
-          }
-        }
+      // Construir el objeto a enviar basado en formData
+      const datosAEnviar = {
+        id: "3", // ID como texto
+        user_id: "2", // ID de usuario como texto
+        tiene_condiciones: formData.condicion_medica === "si" ? "si" : "no", // Convertido a texto
+        detalles_condiciones: formData.condicionesDetalles?.trim() || "", // Asegurar que sea texto
+        lesiones: formData.lesionesBool || "no", // Asegurar que sea texto
+        confirmacion: formData.confirmacion ? "si" : "no", // Convertir el booleano a texto
       };
+    
+      console.log("Datos a enviar:", datosAEnviar);
+    
+      try {
+        // Llamada al servicio para subir los datos
+        const response = await createHealthData(datosAEnviar);
+        console.log("Respuesta del servidor:", response);
+    
+        // Llamar a la función onSubmit para avanzar al siguiente paso
+        onSubmit();
+      } catch (error) {
+        if (error instanceof Error) {
+          console.error(
+            "Error al enviar los datos:",
+            (error as any).response?.data || error.message
+          );
+        } else {
+          console.error("Error desconocido:", error);
+        }
+      }
+    };
+    
+    
   return (
     <Card className="w-full shadow-lg">
       <CardHeader>

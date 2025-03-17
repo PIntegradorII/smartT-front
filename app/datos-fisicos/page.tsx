@@ -62,7 +62,7 @@ export default function DatosFisicosPage() {
             : formData.genero === "femenino"
             ? "F"
             : "Otro",
-        correo: "vrf323pf@gmail.com",
+        correo: "vrfgf3pf@gmail.com",
       };
       const response = await createPersonalData(datosAEnviar);
       console.log("Respuesta del servidor:", response);
