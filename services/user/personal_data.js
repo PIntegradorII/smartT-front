@@ -1,4 +1,4 @@
-import api from "./api"; // Importamos la configuración base de Axios
+import api from "../../app/services/api"; // Importamos la configuración base de Axios
 
 // Crear un nuevo registro en personal_data
 export const createPersonalData = async (data) => {

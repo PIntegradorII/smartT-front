@@ -1,4 +1,7 @@
 "use client"
+import { useEffect } from "react";
+import { useRouter } from "next/navigation";
+import Cookies from "js-cookie";
 import Image from "next/image"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
@@ -6,7 +9,15 @@ import { Dumbbell } from "lucide-react"
 import { useAuth } from "@/app/login/providers"
 
 export default function LoginForm() {
+  const router = useRouter();
   const { signInWithGoogle, isLoading } = useAuth()
+  
+  useEffect(() => {
+    const token = Cookies.get("access_token");
+    if (token) {
+      router.push("/dashboard");
+    }
+  }, []);
 
   return (
     <div className="flex items-center justify-center min-h-screen bg-[#F5F5F5]">

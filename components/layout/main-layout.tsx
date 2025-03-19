@@ -1,15 +1,17 @@
 "use client"
 
 import type React from "react"
-
 import { useState } from "react"
 import { usePathname } from "next/navigation"
+import { signOutBackend } from "@/services/login/authService"; 
 import Link from "next/link"
 import { BarChart3, Home, Menu, User, Dumbbell, Calendar, Settings, LogOut, X, Sparkles } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { cn } from "@/lib/utils"
 import { useMobile } from "@/hooks/use-mobile"
+import { useRouter } from "next/navigation"
+import { useAuth } from "@/app/login/providers";
 
 interface MainLayoutProps {
   children: React.ReactNode
@@ -19,6 +21,8 @@ export function MainLayout({ children }: MainLayoutProps) {
   const pathname = usePathname()
   const isMobile = useMobile()
   const [sidebarOpen, setSidebarOpen] = useState(false)
+  const router = useRouter();
+  const { signOutUser } = useAuth();
 
   const navigation = [
     { name: "Inicio", href: "/dashboard", icon: Home },
@@ -30,6 +34,18 @@ export function MainLayout({ children }: MainLayoutProps) {
     { name: "Administración", href: "/admin", icon: Settings },
     { name: "Configuración", href: "/configuracion", icon: Settings },
   ]
+
+  const handleLogout = async () => {
+    try {
+      console.log("🔥 Cerrando sesión en el backend");
+      await signOutBackend(); // Cierra sesión en el backend
+      await signOutUser(); // Cierra sesión en Firebase y limpia cookies/localStorage
+      console.log("🔥 Cerrando sesión en el frontend");
+      router.replace("/login");
+    } catch (error) {
+      console.error("Error al cerrar sesión:", error);
+    }
+  };
 
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-black">
@@ -103,10 +119,11 @@ export function MainLayout({ children }: MainLayoutProps) {
                 ))}
               </nav>
               <div className="absolute bottom-6 left-6 right-6">
-                <Button variant="outline" className="w-full justify-start gap-2">
+                <Button variant="outline" className="w-full justify-start gap-2" onClick={handleLogout}>
                   <LogOut className="h-4 w-4" />
                   Cerrar sesión
                 </Button>
+
               </div>
             </div>
           </div>
@@ -132,17 +149,15 @@ export function MainLayout({ children }: MainLayoutProps) {
             ))}
           </nav>
           <div className="mt-auto">
-            <Button variant="outline" className="w-full justify-start gap-2">
+            <Button variant="outline" className="w-full justify-start gap-2" onClick={handleLogout}>
               <LogOut className="h-4 w-4" />
               Cerrar sesión
             </Button>
           </div>
         </aside>
-
         {/* Contenido principal */}
         <main className="flex-1 p-6">{children}</main>
       </div>
     </div>
   )
 }
-

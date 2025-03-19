@@ -20,7 +20,7 @@ import {
 } from "@/components/ui/select";
 import { Input } from "@/components/ui/input";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
-import { createPersonalData } from "../../services/personal_data";
+import { createPersonalData } from "../../../services/user/personal_data";
 export interface HealthFormProps {
     handleGeneroChange: (value: string) => void;
   formData: any;

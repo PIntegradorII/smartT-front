@@ -15,7 +15,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 
 import { Dumbbell } from "lucide-react";
-import { createPersonalData } from "../services/personal_data";
+import { createPersonalData } from "../../services/user/personal_data";
 import HealthForm from "./datosMedicos/datos_medicos";
 import {
   Select,
