@@ -20,7 +20,7 @@ import {
 } from "@/components/ui/select";
 import { Input } from "@/components/ui/input";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
-import { createPersonalData } from "../../../services/user/personal_data";
+import { createPersonalData } from "@/services/user/personal_data";
 export interface HealthFormProps {
     handleGeneroChange: (value: string) => void;
   formData: any;
@@ -54,7 +54,7 @@ const PersonalDataForm: React.FC<HealthFormProps> = ({
     try {
       const datosAEnviar = {
         id: 1,
-        user_id: 1,
+        user_id: 9,
         nombre: "Juan",
         edad: parseInt(formData.edad, 10),
         genero:
@@ -63,7 +63,6 @@ const PersonalDataForm: React.FC<HealthFormProps> = ({
             : formData.genero === "femenino"
             ? "F"
             : "Otro",
-        correo: "corvb2o@gmail.com",
       };
       const response = await createPersonalData(datosAEnviar);
       console.log("Respuesta del servidor:", response);
