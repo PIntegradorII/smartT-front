@@ -2,23 +2,55 @@ import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
 
 export function middleware(req: NextRequest) {
-  const hasToken = req.cookies.has("access_token"); // Verifica si la cookie existe
+  const hasToken = req.cookies.has("access_token");
+  const ruta = req.cookies.get("ruta")?.value;
   const { pathname } = req.nextUrl;
 
-  // Si el usuario está en "/" y tiene token, redirigir al dashboard
-  if (pathname === "/") {
-    return NextResponse.redirect(new URL(hasToken ? "/dashboard" : "/login", req.url));
+  // ⚡ Permitir acceso sin restricciones a recursos estáticos y API
+  if (pathname.startsWith("/_next/") || pathname.startsWith("/api/") || pathname.startsWith("/public/")) {
+    return NextResponse.next();
   }
 
-  // Si intenta acceder a rutas protegidas sin token, redirigir a login
-  const protectedRoutes = ["/dashboard", "/profile", "/settings"];
-  if (protectedRoutes.some((route) => pathname.startsWith(route)) && !hasToken) {
+  // ⚡ Permitir acceso a la página de login sin restricciones
+  if (pathname === "/login") {
+    return NextResponse.next();
+  }
+
+  // 🚪 Redirigir a login si no hay token o ruta
+  if (!hasToken || !ruta) {
     return NextResponse.redirect(new URL("/login", req.url));
+  }
+
+  // 🔄 Si el usuario está en "/" y tiene token, redirigirlo a /dashboard
+  if (pathname === "/") {
+    return NextResponse.redirect(new URL("/dashboard", req.url));
+  }
+
+  // 📌 Definir las rutas restringidas según el tipo de usuario
+  const allowedForRuta1 = [
+    "/dashboard",
+    "/rutina",
+    "/progreso",
+    "/calendario",
+    "/generar-rutina",
+    "/perfil",
+    "/admin",
+    "/configuracion",
+  ];
+
+  // 🚫 Usuarios con ruta = 1 solo pueden acceder a estas rutas
+  if (ruta === "1" && !allowedForRuta1.includes(pathname)) {
+    return NextResponse.redirect(new URL("/dashboard", req.url));
+  }
+
+  // 🚫 Usuarios con ruta = 0 pueden acceder a todo EXCEPTO estas rutas
+  if (ruta === "0" && allowedForRuta1.includes(pathname)) {
+    return NextResponse.redirect(new URL("/datos-fisicos", req.url));
   }
 
   return NextResponse.next();
 }
 
 export const config = {
-  matcher: ["/", "/dashboard/:path*", "/profile/:path*", "/settings/:path*"],
+  matcher: ["/:path*"], // Aplica el middleware a todas las rutas
 };
