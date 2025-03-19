@@ -57,13 +57,13 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         name: credential.displayName || '',
         avatar: credential.photoURL ?? undefined,
       }));
-  
+      console.log(credential.uid)
       // Guardar el tiempo de expiración del token (por ejemplo, 1 hora de expiración)
       const expirationTime = Date.now() + 3600000; // 1 hora de expiración
       localStorage.setItem("tokenExpiration", expirationTime.toString());
   
       // Redirigir al dashboard
-      router.push("/dashboard");
+      router.push("/datos-fisicos");
   
       toast.success(`Bienvenido a FitPro, ${credential.displayName}!`);
     } catch (error) {

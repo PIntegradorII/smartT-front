@@ -202,10 +202,10 @@ export default function DatosFisicosPage() {
         )}
         {step === 3 && (
           <HealthForm
-            formData={formData}
-            setFormData={setFormData}
-            onSubmit={handleSubmitHealthData}
-          />
+          formData={formData}
+          setFormData={setFormData}
+          onSubmit={handleSubmitHealthData}
+        />
         )}
       </div>
     </div>

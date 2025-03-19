@@ -63,7 +63,6 @@ const PersonalDataForm: React.FC<HealthFormProps> = ({
             : formData.genero === "femenino"
             ? "F"
             : "Otro",
-        correo: "corvb2o@gmail.com",
       };
       const response = await createPersonalData(datosAEnviar);
       console.log("Respuesta del servidor:", response);
