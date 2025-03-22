@@ -76,7 +76,7 @@ const HealthForm: React.FC<HealthFormProps> = ({
       }
 
       const datosAEnviar = {
-        id: "3", // ID como texto
+ // ID como texto
         user_id: userId.toString(), // Convertir a texto
         tiene_condiciones: formData.condicion_medica === "si" ? "si" : "no",
         detalles_condiciones: formData.condicionesDetalles?.trim() || "",
