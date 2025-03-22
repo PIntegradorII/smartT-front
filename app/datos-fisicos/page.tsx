@@ -65,6 +65,7 @@ export default function DatosFisicosPage() {
   const handleSubmitHealthData = async () => {
     console.log("Datos médicos enviados:", formData);
     setStep(3);
+    
   };
 
   return (

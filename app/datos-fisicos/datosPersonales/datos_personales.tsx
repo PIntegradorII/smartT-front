@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -21,22 +21,45 @@ import {
 import { Input } from "@/components/ui/input";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { createPersonalData } from "@/services/user/personal_data";
-export interface HealthFormProps {
-    handleGeneroChange: (value: string) => void;
+import { getID } from "../../../services/login/authService";export interface HealthFormProps {
+  handleGeneroChange: (value: string) => void;
   formData: any;
   setFormData: React.Dispatch<React.SetStateAction<any>>;
   onSubmit: () => void;
 }
 
-
-// Manejar cambios en el RadioGroup
-
 const PersonalDataForm: React.FC<HealthFormProps> = ({
-    handleGeneroChange,
+  handleGeneroChange,
   formData,
   setFormData,
   onSubmit,
 }) => {
+  const [userId, setUserId] = useState<number | null>(null);
+
+  useEffect(() => {
+    const fetchUserId = async () => {
+      try {
+        const userData = localStorage.getItem("user")
+          ? JSON.parse(localStorage.getItem("user") as string)
+          : null;
+        const fetchedId = await getID(userData.id);
+        setUserId(fetchedId);
+        if (userData?.id) {
+          // Si `google_id` está disponible, llama al servicio para obtener el ID
+          const fetchedId = await getID(userData.id);
+          setUserId(fetchedId);
+        } else {
+          console.error("No se encontró google_id en userData.");
+        }
+      } catch (error) {
+        console.error("Error al recuperar el ID del usuario:", error);
+      }
+    };
+  
+    fetchUserId();
+  }, []);
+  
+
   const handleInputChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
   ) => {
@@ -47,15 +70,16 @@ const PersonalDataForm: React.FC<HealthFormProps> = ({
     }));
   };
 
-  const handleSelectChange = (id: string, value: string) => {
-    setFormData((prev: any) => ({ ...prev, [id]: value }));
-  };
   const handleSubmitPersonalData = async () => {
     try {
+      if (!userId) {
+        throw new Error("No se encontró el ID del usuario");
+      }
+      
+
       const datosAEnviar = {
         id: 1,
-        user_id: 9,
-        nombre: "Juan",
+        user_id: userId,
         edad: parseInt(formData.edad, 10),
         genero:
           formData.genero === "masculino"
@@ -64,6 +88,8 @@ const PersonalDataForm: React.FC<HealthFormProps> = ({
             ? "F"
             : "Otro",
       };
+      console.log("Datos a enviar:", datosAEnviar);
+      console.log("USER ID:", userId);
       const response = await createPersonalData(datosAEnviar);
       console.log("Respuesta del servidor:", response);
       onSubmit();
@@ -71,6 +97,7 @@ const PersonalDataForm: React.FC<HealthFormProps> = ({
       console.error("Error al enviar los datos personales:", error);
     }
   };
+
 
   return (
     <Card className="w-full shadow-lg">
