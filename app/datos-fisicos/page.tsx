@@ -15,7 +15,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 
 import { Dumbbell } from "lucide-react";
-import { createPersonalData } from "../../services/user/personal_data";
+import { createPersonalData } from "@/services/user/personal_data";
 import HealthForm from "./datosMedicos/datos_medicos";
 import {
   Select,
@@ -202,10 +202,10 @@ export default function DatosFisicosPage() {
         )}
         {step === 3 && (
           <HealthForm
-            formData={formData}
-            setFormData={setFormData}
-            onSubmit={handleSubmitHealthData}
-          />
+          formData={formData}
+          setFormData={setFormData}
+          onSubmit={handleSubmitHealthData}
+        />
         )}
       </div>
     </div>
