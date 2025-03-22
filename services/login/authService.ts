@@ -1,5 +1,8 @@
 const API_URL = process.env.REACT_APP_API_URL || "http://127.0.0.1:8000";
-
+import axios from "axios";
+interface ApiResponse {
+  data: number; // Ajusta este tipo según el tipo real de `response.data` que esperas recibir
+}
 export const signInWithGoogleBackend = async (token: string) => {
   try {
     const response = await fetch(`${API_URL}/v1/auth/google-login`, {
@@ -52,5 +55,7 @@ export const signOutBackend = async () => {
     localStorage.removeItem("access_token"); // Se elimina siempre
   }
 };
-
-
+export const getID = async (google_id: string): Promise<number> => {
+  const response: ApiResponse = await axios.get(`${API_URL}/v1/auth/user_id/${google_id}`);
+  return response.data;
+};

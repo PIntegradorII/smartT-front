@@ -29,3 +29,4 @@ export const deletePersonalData = async (id) => {
   const response = await api.delete(`/delete/${id}`);
   return response.data;
 };
+

@@ -1,7 +1,8 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
+import Cookies from "js-cookie";
 import {
   Card,
   CardContent,
@@ -19,60 +20,91 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { createHealthData } from "@/services/user/health_data";
+import { getID } from "@/services/login/authService";
 export interface HealthFormProps {
-    formData: any;
-    setFormData: React.Dispatch<React.SetStateAction<any>>;
-    onSubmit: () => void;
-  }
-  
-  const HealthForm: React.FC<HealthFormProps> = ({
-    formData,
-    setFormData,
-    onSubmit,
-  }) => {
-    const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
-      const { id, value, type, checked } = e.target as HTMLInputElement;
-      setFormData((prev: any) => ({
-        ...prev,
-        [id]: type === "checkbox" ? checked : value,
-      }));
-    };
-  
-    const handleSelectChange = (id: string, value: string) => {
-      setFormData((prev: any) => ({ ...prev, [id]: value }));
-    };
-    const handleSubmitHealthData = async () => {
-      // Construir el objeto a enviar basado en formData
-      const datosAEnviar = {
-        id: "3", // ID como texto
-        user_id: "2", // ID de usuario como texto
-        tiene_condiciones: formData.condicion_medica === "si" ? "si" : "no", // Convertido a texto
-        detalles_condiciones: formData.condicionesDetalles?.trim() || "", // Asegurar que sea texto
-        lesiones: formData.lesionesBool || "no", // Asegurar que sea texto
-        confirmacion: formData.confirmacion ? "si" : "no", // Convertir el booleano a texto
-      };
-    
-      console.log("Datos a enviar:", datosAEnviar);
-    
+  formData: any;
+  setFormData: React.Dispatch<React.SetStateAction<any>>;
+  onSubmit: () => void;
+}
+import { useRouter } from "next/navigation"; // Importa useRouter
+const HealthForm: React.FC<HealthFormProps> = ({
+  formData,
+  setFormData,
+  onSubmit,
+}) => {
+  const [userId, setUserId] = useState<number | null>(null);
+
+  useEffect(() => {
+    const fetchUserId = async () => {
       try {
-        // Llamada al servicio para subir los datos
-        const response = await createHealthData(datosAEnviar);
-        console.log("Respuesta del servidor:", response);
-    
-        // Llamar a la función onSubmit para avanzar al siguiente paso
-        onSubmit();
-      } catch (error) {
-        if (error instanceof Error) {
-          console.error(
-            "Error al enviar los datos:",
-            (error as any).response?.data || error.message
-          );
+        const userData = localStorage.getItem("user")
+          ? JSON.parse(localStorage.getItem("user") as string)
+          : null;
+        const fetchedId = await getID(userData.id);
+        setUserId(fetchedId);
+        if (userData?.id) {
+          // Si `google_id` está disponible, llama al servicio para obtener el ID
+          const fetchedId = await getID(userData.id);
+          setUserId(fetchedId);
         } else {
-          console.error("Error desconocido:", error);
+          console.error("No se encontró google_id en userData.");
         }
+      } catch (error) {
+        console.error("Error al recuperar el ID del usuario:", error);
       }
     };
-    
+  
+    fetchUserId();
+  }, []);
+
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+    const { id, value, type, checked } = e.target as HTMLInputElement;
+    setFormData((prev: any) => ({
+      ...prev,
+      [id]: type === "checkbox" ? checked : value,
+    }));
+  };
+
+  const handleSelectChange = (id: string, value: string) => {
+    setFormData((prev: any) => ({ ...prev, [id]: value }));
+  };
+  const router = useRouter();
+  const handleSubmitHealthData = async () => {
+    try {
+      if (!userId) {
+        throw new Error("No se encontró el ID del usuario");
+      }
+
+      const datosAEnviar = {
+ // ID como texto
+        user_id: userId.toString(), // Convertir a texto
+        tiene_condiciones: formData.condicion_medica === "si" ? "si" : "no",
+        detalles_condiciones: formData.condicionesDetalles?.trim() || "",
+        lesiones: formData.lesionesBool || "no",
+        confirmacion: formData.confirmacion ? "si" : "no",
+      };
+
+      console.log("Datos a enviar:", datosAEnviar);
+
+      const response = await createHealthData(datosAEnviar);
+      console.log("Respuesta del servidor:", response);
+      Cookies.set("ruta", "1", { expires: 1, path: "/" });
+      console.log("Cookie 'ruta' actualizada");
+
+      router.push("/dashboard");
+
+      onSubmit();
+    } catch (error) {
+      if (error instanceof Error) {
+        console.error(
+          "Error al enviar los datos:",
+          (error as any).response?.data || error.message
+        );
+      } else {
+        console.error("Error desconocido:", error);
+      }
+    }
+  };
     
   return (
     <Card className="w-full shadow-lg">
