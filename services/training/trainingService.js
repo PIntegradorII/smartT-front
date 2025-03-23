@@ -57,3 +57,15 @@ export const createPlan = async (userId) => {
       throw error;
     }
   };
+
+  export const getDailyPlan = async (userId) => {
+    try {
+      const response = await api.get("/training/daily-training-plan", {
+        params: { user_id: userId },
+      });
+      return response.data;
+    } catch (error) {
+      console.error("Error al obtener la rutina diaria:", error);
+      throw error;
+    }
+  };
