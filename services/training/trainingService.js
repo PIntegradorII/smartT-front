@@ -6,18 +6,14 @@ export const getUserData = async (userId) => {
     // Obtener datos básicos del usuario
     const userResponse = await api.get(`/users/users/${userId}`);
     const user = userResponse.data;
-    console.log(user);
 
     // Obtener datos de salud
     const healthResponse = await api.get(`/health/health/user/${userId}`);
     const healthData = healthResponse.data;
-    console.log(healthData);
 
     // Obtener datos personales
     const personalResponse = await api.get(`/personal_data/personal_data/user/${userId}`);
     const personalData = personalResponse.data;
-
-
 
     // Estructurar la respuesta final
     return {
@@ -33,6 +29,9 @@ export const getUserData = async (userId) => {
     throw error;
   }
 };
+
+
+// Crear plan de entrenamiento con los datos del usuario
 
 
 // Crear plan de entrenamiento con los datos del usuario

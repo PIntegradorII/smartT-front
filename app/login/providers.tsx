@@ -50,15 +50,12 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       const result = await signInWithPopup(auth, provider);
       const credential = result.user;
       const token = await credential.getIdToken();
-      console.log("🔥 Token de Firebase:", token);
   
       // Enviar token a backend
       const backendResponse = await signInWithGoogleBackend(token);
-      console.log(backendResponse);
       // Guardar el token y la ruta en cookies
       Cookies.set("access_token", backendResponse.access_token, { expires: 1, path: "/" });
       Cookies.set("ruta", backendResponse.ruta.toString(), { expires: 1, path: "/" });
-  
       // Guardar datos del usuario
       const userData = {
         id: credential.uid,
@@ -67,7 +64,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         avatar: credential.photoURL ?? undefined,
       };
       localStorage.setItem("user", JSON.stringify(userData));
-  
+
       // Redirigir según la ruta del backend
       router.push(backendResponse.ruta === 1 ? "/dashboard" : "/datos-fisicos");
   

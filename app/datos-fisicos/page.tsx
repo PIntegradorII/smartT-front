@@ -52,9 +52,7 @@ export default function DatosFisicosPage() {
 
   // Enviar datos personales
   const handleSubmitPersonalData = async () => {
-    console.log("Ejecutando handleSubmitPersonalData...");
     try {
-      console.log("Datos personales enviados:", formData);
       setStep(2); // Cambia al paso 2
     } catch (error) {
       console.error("Error:", error);
@@ -63,7 +61,6 @@ export default function DatosFisicosPage() {
   
   // Enviar datos médicos
   const handleSubmitHealthData = async () => {
-    console.log("Datos médicos enviados:", formData);
     setStep(3);
     
   };

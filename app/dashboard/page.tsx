@@ -1,35 +1,17 @@
 "use client";
+
+import { useEffect, useState } from "react";
 import { MainLayout } from "@/components/layout/main-layout";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
+import { QuickAccess } from "@/components/quick-access";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import {
-  Activity,
-  Calendar,
-  CheckCircle,
-  Dumbbell,
-  Flame,
-  Heart,
-  TrendingUp,
-  Trophy,
-  Zap,
-} from "lucide-react";
-import { QuickAccess } from "@/components/quick-access";
-import {
-  getDailyExerciseLog,
-  logExercise,
-  updateLogByUserAndDate,
-} from "@/services/logs_exercises/logs";
-import { useEffect, useState } from "react";
+import { Activity, Calendar, CheckCircle, Dumbbell, Flame, Heart, TrendingUp, Trophy, Zap } from "lucide-react";
+import { getDailyExerciseLog, logExercise, updateLogByUserAndDate } from "@/services/logs_exercises/logs";
 import { getID } from "../../services/login/authService";
 import { getDailyPlan } from "@/services/training/trainingService";
+import WeeklyCalendarAlt from "@/app/resumen/resumen"
 
 export default function DashboardPage() {
   const [isCompleted, setIsCompleted] = useState(false);
@@ -51,6 +33,26 @@ export default function DashboardPage() {
   }
 
   const [routine, setRoutine] = useState<Routine | null>(null);
+  const [userData, setUserData] = useState<{ name?: string } | null>(null)
+
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      // Verificar que estamos en el navegador
+      const storedUser = localStorage.getItem("user")
+      setUserData(storedUser ? JSON.parse(storedUser) : null)
+    }
+  }, [])
+
+  const formatName = (name: string) => {
+    return name
+      .toLowerCase()
+      .split(" ")
+      .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
+      .join(" ")
+  }
+
+  const userName = userData?.name ? formatName(userData.name) : "Usuario"
+  
   useEffect(() => {
     const initializeLog = async () => {
       try {
@@ -72,8 +74,6 @@ export default function DashboardPage() {
         setRoutine(fetchedRoutine);
         const user_log = await getDailyExerciseLog(fetchedId, today);
         setLog(user_log.completed);
-        //console.log(log.completed)
-        // await logExercise(data);
       } catch (error) {
         console.error("Error initializing log:", error);
       }
@@ -87,10 +87,9 @@ export default function DashboardPage() {
       // Obtén la fecha de hoy en formato YYYY-MM-DD
       const today = new Date().toLocaleDateString("en-CA");
 
-      // Actualiza el log a `completed: 1`
+      // Actualiza el log a completed: 1
       const updatedLog = await updateLogByUserAndDate(userId, today, 1);
-      console.log("Log actualizado:", updatedLog);
-
+      //setRefreshCalendar();
       // Actualiza el estado local para reflejar los cambios inmediatamente
       setLog(true);
       setIsCompleted(true);
@@ -98,7 +97,7 @@ export default function DashboardPage() {
       console.error("Error al completar la rutina:", error);
 
       // Manejar caso de log no encontrado
-      if ((error as any).response?.status === 404) {
+      if ((error as any)?.response?.status === 404) {
         console.error("No se encontró un log para hoy.");
       }
     } finally {
@@ -111,12 +110,14 @@ export default function DashboardPage() {
       <div className="flex flex-col gap-6">
         <div className="flex flex-col gap-2">
           <h1 className="text-3xl font-bold tracking-tight">
-            ¡Bienvenido, Juan!
+          ¡Bienvenido, {userName}!
           </h1>
+
           <p className="text-muted-foreground">
             Aquí tienes un resumen de tu progreso y tu rutina de hoy.
           </p>
         </div>
+        <WeeklyCalendarAlt refresh={isCompleted} />
 
         {/* Acceso rápido */}
         <QuickAccess />

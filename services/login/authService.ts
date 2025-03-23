@@ -16,9 +16,7 @@ export const signInWithGoogleBackend = async (token: string) => {
     if (!response.ok) {
       throw new Error("Error al iniciar sesión con Google");
     }
-    console.log ("🔥 Respuesta del backend:", response);
     const data = await response.json();
-    console.log("🔥 Resultado de la autenticación en el backend:", data);
     // Guardar el JWT en localStorage
     localStorage.setItem("access_token", data.access_token);
 
@@ -32,7 +30,6 @@ export const signInWithGoogleBackend = async (token: string) => {
 export const signOutBackend = async () => {
   const API_URL = process.env.REACT_APP_API_URL || "http://127.0.0.1:8000";
   const token = localStorage.getItem("access_token");
-  console.log("🔥 Cerrando sesión en el backend");
   try {
     if (token) {
       const response = await fetch(`${API_URL}/v1/auth/logout`, {
@@ -46,8 +43,6 @@ export const signOutBackend = async () => {
       if (!response.ok) {
         throw new Error("Error al cerrar sesión");
       }
-
-      console.log("✅ Sesión cerrada correctamente en el backend");
     }
   } catch (error) {
     console.error("Error en el logout:", error);

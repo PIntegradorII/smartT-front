@@ -37,10 +37,8 @@ export function MainLayout({ children }: MainLayoutProps) {
 
   const handleLogout = async () => {
     try {
-      console.log("🔥 Cerrando sesión en el backend");
       await signOutBackend(); // Cierra sesión en el backend
       await signOutUser(); // Cierra sesión en Firebase y limpia cookies/localStorage
-      console.log("🔥 Cerrando sesión en el frontend");
       router.replace("/login");
     } catch (error) {
       console.error("Error al cerrar sesión:", error);
