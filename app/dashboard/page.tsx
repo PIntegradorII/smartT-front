@@ -10,6 +10,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Activity, Calendar, CheckCircle, Dumbbell, Flame, Heart, TrendingUp, Trophy, Zap } from "lucide-react";
 import { getDailyExerciseLog, logExercise, updateLogByUserAndDate } from "@/services/logs_exercises/logs";
 import { getID } from "../../services/login/authService";
+import { getDailyPlan } from "@/services/training/trainingService";
 import WeeklyCalendarAlt from "@/app/resumen/resumen"
 
 export default function DashboardPage() {
@@ -17,6 +18,21 @@ export default function DashboardPage() {
   const [isLoading, setIsLoading] = useState(false);
   const [userId, setUserId] = useState<number | null>(null);
   const [log, setLog] = useState<boolean | null>(null);
+  interface Exercise {
+    ejercicio: string;
+    series: number;
+    repeticiones: number;
+  }
+
+  interface Routine {
+    day: string;
+    routine: {
+      titulo: string;
+      ejercicios: Exercise[];
+    };
+  }
+
+  const [routine, setRoutine] = useState<Routine | null>(null);
   const [userData, setUserData] = useState<{ name?: string } | null>(null)
 
   useEffect(() => {
@@ -54,6 +70,8 @@ export default function DashboardPage() {
           date: new Date().toISOString().split("T")[0], // Fecha en formato YYYY-MM-DD
           completed: false,
         };
+        const fetchedRoutine = await getDailyPlan(fetchedId);
+        setRoutine(fetchedRoutine);
         const user_log = await getDailyExerciseLog(fetchedId, today);
         setLog(user_log.completed);
       } catch (error) {
@@ -175,95 +193,28 @@ export default function DashboardPage() {
           ) : (
             <>
               <div>
-                <CardContent>
-                  <Tabs defaultValue="ejercicios">
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                      {/* Ejercicio 1 */}
-                      <Card>
-                        <CardContent className="p-4 flex items-center gap-4">
-                          <div className="h-16 w-16 rounded-lg bg-muted flex items-center justify-center">
-                            <Dumbbell className="h-8 w-8 text-primary" />
-                          </div>
-                          <div className="flex-1">
-                            <div className="flex justify-between items-center mb-1">
-                              <h4 className="font-medium">Press de banca</h4>
-                              <span className="text-sm text-muted-foreground">
-                                4 series
-                              </span>
-                            </div>
-                            <div className="text-sm text-muted-foreground mb-2">
-                              12 repeticiones • 60kg
-                            </div>
-                            <Progress value={0} className="h-2" />
-                          </div>
-                        </CardContent>
-                      </Card>
-
-                      {/* Ejercicio 2 */}
-                      <Card>
-                        <CardContent className="p-4 flex items-center gap-4">
-                          <div className="h-16 w-16 rounded-lg bg-muted flex items-center justify-center">
-                            <Dumbbell className="h-8 w-8 text-primary" />
-                          </div>
-                          <div className="flex-1">
-                            <div className="flex justify-between items-center mb-1">
-                              <h4 className="font-medium">Dominadas</h4>
-                              <span className="text-sm text-muted-foreground">
-                                3 series
-                              </span>
-                            </div>
-                            <div className="text-sm text-muted-foreground mb-2">
-                              10 repeticiones • Peso corporal
-                            </div>
-                            <Progress value={0} className="h-2" />
-                          </div>
-                        </CardContent>
-                      </Card>
-
-                      {/* Ejercicio 3 */}
-                      <Card>
-                        <CardContent className="p-4 flex items-center gap-4">
-                          <div className="h-16 w-16 rounded-lg bg-muted flex items-center justify-center">
-                            <Dumbbell className="h-8 w-8 text-primary" />
-                          </div>
-                          <div className="flex-1">
-                            <div className="flex justify-between items-center mb-1">
-                              <h4 className="font-medium">Remo con barra</h4>
-                              <span className="text-sm text-muted-foreground">
-                                4 series
-                              </span>
-                            </div>
-                            <div className="text-sm text-muted-foreground mb-2">
-                              12 repeticiones • 50kg
-                            </div>
-                            <Progress value={0} className="h-2" />
-                          </div>
-                        </CardContent>
-                      </Card>
-
-                      {/* Ejercicio 4 */}
-                      <Card>
-                        <CardContent className="p-4 flex items-center gap-4">
-                          <div className="h-16 w-16 rounded-lg bg-muted flex items-center justify-center">
-                            <Dumbbell className="h-8 w-8 text-primary" />
-                          </div>
-                          <div className="flex-1">
-                            <div className="flex justify-between items-center mb-1">
-                              <h4 className="font-medium">Curl de bíceps</h4>
-                              <span className="text-sm text-muted-foreground">
-                                3 series
-                              </span>
-                            </div>
-                            <div className="text-sm text-muted-foreground mb-2">
-                              15 repeticiones • 15kg
-                            </div>
-                            <Progress value={0} className="h-2" />
-                          </div>
-                        </CardContent>
-                      </Card>
+              <CardContent>
+            {routine ? (
+              routine.routine.ejercicios.map((exercise, index) => (
+                <Card key={index} className="mb-4">
+                  <CardContent className="flex items-center gap-4">
+                    <div className="h-16 w-16 rounded-lg bg-muted flex items-center justify-center">
+                      <Dumbbell className="h-8 w-8 text-primary" />
                     </div>
-                  </Tabs>
-                </CardContent>
+                    <div className="flex-1">
+                      <h4 className="font-medium">{exercise.ejercicio}</h4>
+                      <p className="text-sm text-muted-foreground">
+                        {exercise.series} series • {exercise.repeticiones}
+                      </p>
+                      <Progress value={0} className="h-2" />
+                    </div>
+                  </CardContent>
+                </Card>
+              ))
+            ) : (
+              <p>Cargando rutina...</p>
+            )}
+          </CardContent>
               </div>
             </>
           )}
@@ -273,10 +224,8 @@ export default function DashboardPage() {
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
           <Card>
             <CardHeader>
-              <CardTitle>Próximos entrenamientos</CardTitle>
-              <CardDescription>
-                Tu planificación para esta semana
-              </CardDescription>
+            <CardTitle>{routine?.day || "Día no disponible"}</CardTitle>
+            <CardDescription>{routine?.routine?.titulo || "Sin rutina"}</CardDescription>
             </CardHeader>
             <CardContent>
               <div className="space-y-4">
