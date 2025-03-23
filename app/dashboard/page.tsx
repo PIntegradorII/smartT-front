@@ -10,27 +10,13 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Activity, Calendar, CheckCircle, Dumbbell, Flame, Heart, TrendingUp, Trophy, Zap } from "lucide-react";
 import { getDailyExerciseLog, logExercise, updateLogByUserAndDate } from "@/services/logs_exercises/logs";
 import { getID } from "../../services/login/authService";
-import { WeeklyCalendarAlt as WeeklyCalendar } from "@/app/resumen/resumen";
+import { WeeklyCalendarAlt } from "@/app/resumen/resumen";
 
 export default function DashboardPage() {
   const [isCompleted, setIsCompleted] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [userId, setUserId] = useState<number | null>(null);
   const [log, setLog] = useState<boolean | null>(null);
-  const [refreshCalendar, setRefreshCalendar] = useState(false);
-  const userData = localStorage.getItem("user")
-    ? JSON.parse(localStorage.getItem("user") as string)
-    : null;
-
-  const formatName = (name: string) => {
-    return name
-      .toLowerCase() // Convierte todo a minúsculas
-      .split(" ") // Divide en palabras
-      .map(word => word.charAt(0).toUpperCase() + word.slice(1)) // Capitaliza la primera letra
-      .join(" "); // Une de nuevo en un solo string
-  };
-
-  const userName = userData?.name || "Usuario";
 
   useEffect(() => {
     const initializeLog = async () => {
@@ -58,7 +44,6 @@ export default function DashboardPage() {
 
     initializeLog();
   }, []);
-
   const handleCompleteRoutine = async () => {
     setIsLoading(true);
     try {
@@ -67,7 +52,8 @@ export default function DashboardPage() {
 
       // Actualiza el log a completed: 1
       const updatedLog = await updateLogByUserAndDate(userId, today, 1);
-      setRefreshCalendar(!refreshCalendar);
+      console.log("Log actualizado:", updatedLog);
+      //setRefreshCalendar();
       // Actualiza el estado local para reflejar los cambios inmediatamente
       setLog(true);
       setIsCompleted(true);
@@ -82,19 +68,19 @@ export default function DashboardPage() {
       setIsLoading(false);
     }
   };
-  //datos
+//datos
   return (
     <MainLayout>
       <div className="flex flex-col gap-6">
         <div className="flex flex-col gap-2">
           <h1 className="text-3xl font-bold tracking-tight">
-            ¡Bienvenido, {userName}!
+            ¡Bienvenido, Juan!
           </h1>
           <p className="text-muted-foreground">
             Aquí tienes un resumen de tu progreso y tu rutina de hoy.
           </p>
         </div>
-        <WeeklyCalendar refresh={refreshCalendar} />
+        <WeeklyCalendarAlt />
         {/* Acceso rápido */}
         <QuickAccess />
 
@@ -160,7 +146,7 @@ export default function DashboardPage() {
             )}
           </CardHeader>
           {log ? (
-            <div className="flex flex-col items-center gap-4 mt-4 mb-4">
+              <div className="flex flex-col items-center gap-4 mt-4 mb-4">
               <CheckCircle className="h-16 w-16 text-green-600" />
               <h2 className="text-xl font-bold text-center">
                 Rutina de hoy terminada

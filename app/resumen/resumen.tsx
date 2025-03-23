@@ -11,29 +11,28 @@ interface WeekdayStatus {
   date: string
 }
 
-export function WeeklyCalendarAlt({ refresh }: { refresh: boolean }) {
+export function WeeklyCalendarAlt() {
   const [weekData, setWeekData] = useState<WeekdayStatus[]>([])
   const [isLoading, setIsLoading] = useState(true)
 
-
-  const loadData = async () => {
-    try {
-      const userData = localStorage.getItem("user") ? JSON.parse(localStorage.getItem("user") as string) : null;
-      if (userData) {
-        const googleId = userData.id;
-        const data = await getWeeklyExercises(googleId);
-        setWeekData(data);
-      }
-    } catch (error) {
-      console.error("Error al cargar el resumen semanal:", error);
-    } finally {
-      setIsLoading(false);
-    }
-  };
-  
   useEffect(() => {
-    loadData();
-  }, [refresh]); // Se ejecuta cuando `refresh` cambia
+    const loadData = async () => {
+      try {
+        const userData = localStorage.getItem("user") ? JSON.parse(localStorage.getItem("user") as string) : null;
+        if (userData) {
+          const googleId = userData.id;  // Asegúrate de que `id` sea el `google_id`
+          const data  = await getWeeklyExercises(googleId);
+          setWeekData(data)
+        } 
+      } catch (error) {
+        console.error("Error al cargar el resumen semanal:", error)
+      } finally {
+        setIsLoading(false)
+      }
+    }
+
+    loadData()
+  }, [])
 
  
   
