@@ -11,7 +11,7 @@ import { Badge } from "@/components/ui/badge"
 import { Dumbbell, Loader2, Sparkles, Zap } from "lucide-react"
 import Link from "next/link"
 import { getID } from "@/services/login/authService";
-import { getUserData, createPlan } from "@/services/training/trainingService";
+import { createPlan } from "@/services/training/trainingService";
 
 export default function GenerarRutinaPage() {
   const [generating, setGenerating] = useState(false)

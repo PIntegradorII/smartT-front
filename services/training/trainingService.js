@@ -17,8 +17,6 @@ export const getUserData = async (userId) => {
     const personalResponse = await api.get(`/personal_data/personal_data/user/${userId}`);
     const personalData = personalResponse.data;
 
-
-
     // Estructurar la respuesta final
     return {
       nombre: user.name,
@@ -37,23 +35,37 @@ export const getUserData = async (userId) => {
 
 // Crear plan de entrenamiento con los datos del usuario
 export const createPlan = async (userId) => {
-    try {
-      // Obtener datos del usuario
-      const userInfo = await getUserData(userId);
-  
-      // Enviar los datos al backend para generar el plan
-      const response = await api.get("/training/training-plan", {
-        params: userInfo, // Enviar los datos como parámetros de consulta
-      });
-  
-      if (!response.data) {
-        throw new Error("No se pudo generar el plan de entrenamiento");
-      }
-  
-    //   console.log("Plan de entrenamiento generado:", response.data);
-      return response.data;
-    } catch (error) {
-      console.error("Error en createPlan:", error);
-      throw error;
+  try {
+    // Obtener datos del usuario
+    const userInfo = await getUserData(userId);
+
+    // Obtener el plan de entrenamiento generado
+    const response = await api.get("/training/training-plan", {
+      params: userInfo, // Enviar los datos como parámetros de consulta
+    });
+    
+    if (!response.data) {
+      throw new Error("No se pudo generar el plan de entrenamiento");
     }
-  };
+    
+    const trainingPlan = {
+      user_id: userId,  // Agrega el user_id esperado por el backend
+      ...response.data, // Mantiene los días de la semana como están
+    };
+    
+    console.log("Datos enviados en POST:", trainingPlan);
+
+    // Guardar el plan de entrenamiento en el backend
+    const saveResponse = await api.post("/training/training-plan", trainingPlan);
+
+    if (!saveResponse.data) {
+      throw new Error("No se pudo guardar el plan de entrenamiento");
+    }
+
+    console.log("Plan de entrenamiento guardado:", saveResponse.data);
+    return saveResponse.data;
+  } catch (error) {
+    console.error("Error en createPlan:", error);
+    throw error;
+  }
+};
