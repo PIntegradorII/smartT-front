@@ -1,4 +1,4 @@
-const API_URL = process.env.REACT_APP_API_URL || "http://127.0.0.1:8000";
+const API_URL = process.env.REACT_APP_API_URL || "https://smartt-back.onrender.com";
 import axios from "axios";
 interface ApiResponse {
   data: number; // Ajusta este tipo según el tipo real de `response.data` que esperas recibir

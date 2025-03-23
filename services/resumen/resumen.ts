@@ -1,5 +1,5 @@
 export const getWeeklyExercises = async (googleId: string) => {
-    const API_URL = process.env.REACT_APP_API_URL || "http://127.0.0.1:8000";
+    const API_URL = process.env.REACT_APP_API_URL || "https://smartt-back.onrender.com";
   
     try {
       const response = await fetch(`${API_URL}/v1/log_exercises/exercise/weekly/`, {

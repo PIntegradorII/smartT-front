@@ -1,6 +1,6 @@
 import axios from "axios";
 
-const BASE_URL = "http://127.0.0.1:8000/v1";
+const BASE_URL = "https://smartt-back.onrender.com/v1";
 
 export const logExercise = async (data: { user_id: number | null; date: string; completed: boolean }) => {
     try {
