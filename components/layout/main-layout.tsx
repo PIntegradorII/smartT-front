@@ -1,6 +1,7 @@
 "use client"
 
 import type React from "react"
+import { useEffect } from "react";
 import { useState } from "react"
 import { usePathname } from "next/navigation"
 import { signOutBackend } from "@/services/login/authService"; 
@@ -23,11 +24,40 @@ export function MainLayout({ children }: MainLayoutProps) {
   const [sidebarOpen, setSidebarOpen] = useState(false)
   const router = useRouter();
   const { signOutUser } = useAuth();
+  const [userData, setUserData] = useState<{ name?: string } | null>(null)
+
+  const getInitials = (name: string) => {
+    return name
+      .split(" ")
+      .map((word) => word[0])
+      .join("")
+      .toUpperCase();
+  };
+  
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      const storedUser = localStorage.getItem("user");
+      const userData = storedUser ? JSON.parse(storedUser) : null;
+      if (userData?.name) {
+        const initials = getInitials(userData.name);
+        console.log("Initials:", initials);
+      }
+    }
+  }, []);
+
+  useEffect(() => {
+      if (typeof window !== "undefined") {
+        // Verificar que estamos en el navegador
+        const storedUser = localStorage.getItem("user")
+        setUserData(storedUser ? JSON.parse(storedUser) : null)
+        console.log("userData", storedUser)
+      }
+    }, [])
 
   const navigation = [
     { name: "Inicio", href: "/dashboard", icon: Home },
     { name: "Rutina", href: "/rutina", icon: Dumbbell },
-    { name: "Progreso", href: "/progreso", icon: BarChart3 },
+    // { name: "Progreso", href: "/progreso", icon: BarChart3 },
     // { name: "Calendario", href: "/calendario", icon: Calendar },
     { name: "Generar Rutina", href: "/generar-rutina", icon: Sparkles },
     { name: "Perfil", href: "/perfil", icon: User },
@@ -65,7 +95,7 @@ export function MainLayout({ children }: MainLayoutProps) {
           <div className="flex items-center gap-4">
             <Avatar>
               <AvatarImage src="/placeholder.svg?height=40&width=40" alt="Usuario" />
-              <AvatarFallback>US</AvatarFallback>
+              <AvatarFallback>{getInitials(userData?.name || "User")}</AvatarFallback>
             </Avatar>
           </div>
         </div>
