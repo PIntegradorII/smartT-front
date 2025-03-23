@@ -17,9 +17,9 @@ const nextConfig = {
     unoptimized: true,
   },
   experimental: {
-    webpackBuildWorker: true,
-    parallelServerBuildTraces: true,
-    parallelServerCompiles: true,
+   // webpackBuildWorker: true,
+    //parallelServerBuildTraces: true,
+    //parallelServerCompiles: true,
   },
   /*async headers() {
     return [
@@ -34,7 +34,7 @@ const nextConfig = {
   }  */
 };
 
-mergeConfig(nextConfig, userConfig);
+//mergeConfig(nextConfig, userConfig);
 
 function mergeConfig(nextConfig, userConfig) {
   if (!userConfig) {

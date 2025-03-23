@@ -1,19 +1,123 @@
-import { MainLayout } from "@/components/layout/main-layout"
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import { Button } from "@/components/ui/button"
-import { Progress } from "@/components/ui/progress"
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import { Activity, Calendar, Dumbbell, Flame, Heart, TrendingUp, Trophy, Zap } from "lucide-react"
-import { QuickAccess } from "@/components/quick-access"
+"use client";
+
+import { useEffect, useState } from "react";
+import { MainLayout } from "@/components/layout/main-layout";
+import { QuickAccess } from "@/components/quick-access";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Progress } from "@/components/ui/progress";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Activity, Calendar, CheckCircle, Dumbbell, Flame, Heart, TrendingUp, Trophy, Zap } from "lucide-react";
+import { getDailyExerciseLog, logExercise, updateLogByUserAndDate } from "@/services/logs_exercises/logs";
+import { getID } from "../../services/login/authService";
+import { getDailyPlan } from "@/services/training/trainingService";
+import WeeklyCalendarAlt from "@/app/resumen/resumen"
 
 export default function DashboardPage() {
+  const [isCompleted, setIsCompleted] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
+  const [userId, setUserId] = useState<number | null>(null);
+  const [log, setLog] = useState<boolean | null>(null);
+  interface Exercise {
+    ejercicio: string;
+    series: number;
+    repeticiones: number;
+  }
+
+  interface Routine {
+    day: string;
+    routine: {
+      titulo: string;
+      ejercicios: Exercise[];
+    };
+  }
+
+  const [routine, setRoutine] = useState<Routine | null>(null);
+  const [userData, setUserData] = useState<{ name?: string } | null>(null)
+
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      // Verificar que estamos en el navegador
+      const storedUser = localStorage.getItem("user")
+      setUserData(storedUser ? JSON.parse(storedUser) : null)
+    }
+  }, [])
+
+  const formatName = (name: string) => {
+    return name
+      .toLowerCase()
+      .split(" ")
+      .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
+      .join(" ")
+  }
+
+  const userName = userData?.name ? formatName(userData.name) : "Usuario"
+  
+  useEffect(() => {
+    const initializeLog = async () => {
+      try {
+        const today = new Date().toLocaleDateString("en-CA");
+        // Obtén el ID del usuario
+        const userData = localStorage.getItem("user")
+          ? JSON.parse(localStorage.getItem("user") as string)
+          : null;
+        const fetchedId = await getID(userData.id);
+        setUserId(fetchedId);
+
+        // Crea el log para el día si no existe
+        const data = {
+          user_id: fetchedId,
+          date: new Date().toISOString().split("T")[0], // Fecha en formato YYYY-MM-DD
+          completed: false,
+        };
+        const fetchedRoutine = await getDailyPlan(fetchedId);
+        setRoutine(fetchedRoutine);
+        const user_log = await getDailyExerciseLog(fetchedId, today);
+        setLog(user_log.completed);
+      } catch (error) {
+        console.error("Error initializing log:", error);
+      }
+    };
+
+    initializeLog();
+  }, []);
+  const handleCompleteRoutine = async () => {
+    setIsLoading(true);
+    try {
+      // Obtén la fecha de hoy en formato YYYY-MM-DD
+      const today = new Date().toLocaleDateString("en-CA");
+
+      // Actualiza el log a completed: 1
+      const updatedLog = await updateLogByUserAndDate(userId, today, 1);
+      //setRefreshCalendar();
+      // Actualiza el estado local para reflejar los cambios inmediatamente
+      setLog(true);
+      setIsCompleted(true);
+    } catch (error) {
+      console.error("Error al completar la rutina:", error);
+
+      // Manejar caso de log no encontrado
+      if ((error as any)?.response?.status === 404) {
+        console.error("No se encontró un log para hoy.");
+      }
+    } finally {
+      setIsLoading(false);
+    }
+  };
+//datos
   return (
     <MainLayout>
       <div className="flex flex-col gap-6">
         <div className="flex flex-col gap-2">
-          <h1 className="text-3xl font-bold tracking-tight">¡Bienvenido, Juan!</h1>
-          <p className="text-muted-foreground">Aquí tienes un resumen de tu progreso y tu rutina de hoy.</p>
+          <h1 className="text-3xl font-bold tracking-tight">
+          ¡Bienvenido, {userName}!
+          </h1>
+
+          <p className="text-muted-foreground">
+            Aquí tienes un resumen de tu progreso y tu rutina de hoy.
+          </p>
         </div>
+        <WeeklyCalendarAlt refresh={isCompleted} />
 
         {/* Acceso rápido */}
         <QuickAccess />
@@ -36,7 +140,9 @@ export default function DashboardPage() {
                 <Activity className="h-6 w-6 text-white" />
               </div>
               <div className="text-2xl font-bold">4 de 5</div>
-              <p className="text-sm text-muted-foreground">Entrenamientos completados</p>
+              <p className="text-sm text-muted-foreground">
+                Entrenamientos completados
+              </p>
             </CardContent>
           </Card>
 
@@ -56,7 +162,9 @@ export default function DashboardPage() {
                 <Trophy className="h-6 w-6 text-white" />
               </div>
               <div className="text-2xl font-bold">3</div>
-              <p className="text-sm text-muted-foreground">Logros desbloqueados</p>
+              <p className="text-sm text-muted-foreground">
+                Logros desbloqueados
+              </p>
             </CardContent>
           </Card>
         </div>
@@ -68,187 +176,56 @@ export default function DashboardPage() {
               <CardTitle>Tu rutina de hoy</CardTitle>
               <CardDescription>Lunes, 13 de marzo</CardDescription>
             </div>
-            <Button>
-              <Dumbbell className="mr-2 h-4 w-4" />
-              Comenzar entrenamiento
-            </Button>
+            {!isCompleted && !log && (
+              <Button onClick={handleCompleteRoutine} disabled={isLoading}>
+                <Dumbbell className="mr-2 h-4 w-4" />
+                {isLoading ? "Cargando..." : "Rutina terminada"}
+              </Button>
+            )}
           </CardHeader>
-          <CardContent>
-            <Tabs defaultValue="ejercicios">
-              <TabsList className="mb-4">
-                <TabsTrigger value="ejercicios">Ejercicios</TabsTrigger>
-                <TabsTrigger value="nutricion">Nutrición</TabsTrigger>
-              </TabsList>
-
-              <TabsContent value="ejercicios" className="space-y-4">
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  {/* Ejercicio 1 */}
-                  <Card>
-                    <CardContent className="p-4 flex items-center gap-4">
-                      <div className="h-16 w-16 rounded-lg bg-muted flex items-center justify-center">
-                        <Dumbbell className="h-8 w-8 text-primary" />
-                      </div>
-                      <div className="flex-1">
-                        <div className="flex justify-between items-center mb-1">
-                          <h4 className="font-medium">Press de banca</h4>
-                          <span className="text-sm text-muted-foreground">4 series</span>
-                        </div>
-                        <div className="text-sm text-muted-foreground mb-2">12 repeticiones • 60kg</div>
-                        <Progress value={0} className="h-2" />
-                      </div>
-                    </CardContent>
-                  </Card>
-
-                  {/* Ejercicio 2 */}
-                  <Card>
-                    <CardContent className="p-4 flex items-center gap-4">
-                      <div className="h-16 w-16 rounded-lg bg-muted flex items-center justify-center">
-                        <Dumbbell className="h-8 w-8 text-primary" />
-                      </div>
-                      <div className="flex-1">
-                        <div className="flex justify-between items-center mb-1">
-                          <h4 className="font-medium">Dominadas</h4>
-                          <span className="text-sm text-muted-foreground">3 series</span>
-                        </div>
-                        <div className="text-sm text-muted-foreground mb-2">10 repeticiones • Peso corporal</div>
-                        <Progress value={0} className="h-2" />
-                      </div>
-                    </CardContent>
-                  </Card>
-
-                  {/* Ejercicio 3 */}
-                  <Card>
-                    <CardContent className="p-4 flex items-center gap-4">
-                      <div className="h-16 w-16 rounded-lg bg-muted flex items-center justify-center">
-                        <Dumbbell className="h-8 w-8 text-primary" />
-                      </div>
-                      <div className="flex-1">
-                        <div className="flex justify-between items-center mb-1">
-                          <h4 className="font-medium">Remo con barra</h4>
-                          <span className="text-sm text-muted-foreground">4 series</span>
-                        </div>
-                        <div className="text-sm text-muted-foreground mb-2">12 repeticiones • 50kg</div>
-                        <Progress value={0} className="h-2" />
-                      </div>
-                    </CardContent>
-                  </Card>
-
-                  {/* Ejercicio 4 */}
-                  <Card>
-                    <CardContent className="p-4 flex items-center gap-4">
-                      <div className="h-16 w-16 rounded-lg bg-muted flex items-center justify-center">
-                        <Dumbbell className="h-8 w-8 text-primary" />
-                      </div>
-                      <div className="flex-1">
-                        <div className="flex justify-between items-center mb-1">
-                          <h4 className="font-medium">Curl de bíceps</h4>
-                          <span className="text-sm text-muted-foreground">3 series</span>
-                        </div>
-                        <div className="text-sm text-muted-foreground mb-2">15 repeticiones • 15kg</div>
-                        <Progress value={0} className="h-2" />
-                      </div>
-                    </CardContent>
-                  </Card>
-                </div>
-              </TabsContent>
-
-              <TabsContent value="nutricion">
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  {/* Desayuno */}
-                  <Card>
-                    <CardContent className="p-4">
-                      <h4 className="font-medium mb-2">Desayuno</h4>
-                      <ul className="space-y-1 text-sm">
-                        <li className="flex items-center gap-2">
-                          <span className="h-2 w-2 rounded-full bg-success"></span>
-                          Avena con plátano y miel (300 kcal)
-                        </li>
-                        <li className="flex items-center gap-2">
-                          <span className="h-2 w-2 rounded-full bg-success"></span>
-                          Yogur griego con nueces (150 kcal)
-                        </li>
-                        <li className="flex items-center gap-2">
-                          <span className="h-2 w-2 rounded-full bg-success"></span>
-                          Café negro o té verde
-                        </li>
-                      </ul>
-                    </CardContent>
-                  </Card>
-
-                  {/* Almuerzo */}
-                  <Card>
-                    <CardContent className="p-4">
-                      <h4 className="font-medium mb-2">Almuerzo</h4>
-                      <ul className="space-y-1 text-sm">
-                        <li className="flex items-center gap-2">
-                          <span className="h-2 w-2 rounded-full bg-success"></span>
-                          Pechuga de pollo a la plancha (200 kcal)
-                        </li>
-                        <li className="flex items-center gap-2">
-                          <span className="h-2 w-2 rounded-full bg-success"></span>
-                          Arroz integral (150 kcal)
-                        </li>
-                        <li className="flex items-center gap-2">
-                          <span className="h-2 w-2 rounded-full bg-success"></span>
-                          Ensalada de verduras (100 kcal)
-                        </li>
-                      </ul>
-                    </CardContent>
-                  </Card>
-
-                  {/* Cena */}
-                  <Card>
-                    <CardContent className="p-4">
-                      <h4 className="font-medium mb-2">Cena</h4>
-                      <ul className="space-y-1 text-sm">
-                        <li className="flex items-center gap-2">
-                          <span className="h-2 w-2 rounded-full bg-success"></span>
-                          Salmón al horno (250 kcal)
-                        </li>
-                        <li className="flex items-center gap-2">
-                          <span className="h-2 w-2 rounded-full bg-success"></span>
-                          Batata asada (100 kcal)
-                        </li>
-                        <li className="flex items-center gap-2">
-                          <span className="h-2 w-2 rounded-full bg-success"></span>
-                          Brócoli al vapor (50 kcal)
-                        </li>
-                      </ul>
-                    </CardContent>
-                  </Card>
-
-                  {/* Snacks */}
-                  <Card>
-                    <CardContent className="p-4">
-                      <h4 className="font-medium mb-2">Snacks</h4>
-                      <ul className="space-y-1 text-sm">
-                        <li className="flex items-center gap-2">
-                          <span className="h-2 w-2 rounded-full bg-success"></span>
-                          Batido de proteínas (150 kcal)
-                        </li>
-                        <li className="flex items-center gap-2">
-                          <span className="h-2 w-2 rounded-full bg-success"></span>
-                          Manzana con mantequilla de almendras (200 kcal)
-                        </li>
-                        <li className="flex items-center gap-2">
-                          <span className="h-2 w-2 rounded-full bg-success"></span>
-                          Puñado de frutos secos (100 kcal)
-                        </li>
-                      </ul>
-                    </CardContent>
-                  </Card>
-                </div>
-              </TabsContent>
-            </Tabs>
+          {log ? (
+              <div className="flex flex-col items-center gap-4 mt-4 mb-4">
+              <CheckCircle className="h-16 w-16 text-green-600" />
+              <h2 className="text-xl font-bold text-center">
+                Rutina de hoy terminada
+              </h2>
+            </div>
+          ) : (
+            <>
+              <div>
+              <CardContent>
+            {routine ? (
+              routine.routine.ejercicios.map((exercise, index) => (
+                <Card key={index} className="mb-4">
+                  <CardContent className="flex items-center gap-4">
+                    <div className="h-16 w-16 rounded-lg bg-muted flex items-center justify-center">
+                      <Dumbbell className="h-8 w-8 text-primary" />
+                    </div>
+                    <div className="flex-1">
+                      <h4 className="font-medium">{exercise.ejercicio}</h4>
+                      <p className="text-sm text-muted-foreground">
+                        {exercise.series} series • {exercise.repeticiones}
+                      </p>
+                      <Progress value={0} className="h-2" />
+                    </div>
+                  </CardContent>
+                </Card>
+              ))
+            ) : (
+              <p>No hay rutinas por mostrar</p>
+            )}
           </CardContent>
+              </div>
+            </>
+          )}
         </Card>
 
         {/* Próximos entrenamientos */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
           <Card>
             <CardHeader>
-              <CardTitle>Próximos entrenamientos</CardTitle>
-              <CardDescription>Tu planificación para esta semana</CardDescription>
+            <CardTitle>{routine?.day || "Día no disponible"}</CardTitle>
+            <CardDescription>{routine?.routine?.titulo || "Sin rutina"}</CardDescription>
             </CardHeader>
             <CardContent>
               <div className="space-y-4">
@@ -259,9 +236,13 @@ export default function DashboardPage() {
                   <div className="flex-1">
                     <div className="flex justify-between items-center">
                       <h4 className="font-medium">Martes</h4>
-                      <span className="text-sm text-muted-foreground">Piernas</span>
+                      <span className="text-sm text-muted-foreground">
+                        Piernas
+                      </span>
                     </div>
-                    <div className="text-sm text-muted-foreground">14 de marzo • 60 min</div>
+                    <div className="text-sm text-muted-foreground">
+                      14 de marzo • 60 min
+                    </div>
                   </div>
                 </div>
 
@@ -272,9 +253,13 @@ export default function DashboardPage() {
                   <div className="flex-1">
                     <div className="flex justify-between items-center">
                       <h4 className="font-medium">Miércoles</h4>
-                      <span className="text-sm text-muted-foreground">Descanso</span>
+                      <span className="text-sm text-muted-foreground">
+                        Descanso
+                      </span>
                     </div>
-                    <div className="text-sm text-muted-foreground">15 de marzo</div>
+                    <div className="text-sm text-muted-foreground">
+                      15 de marzo
+                    </div>
                   </div>
                 </div>
 
@@ -285,9 +270,13 @@ export default function DashboardPage() {
                   <div className="flex-1">
                     <div className="flex justify-between items-center">
                       <h4 className="font-medium">Jueves</h4>
-                      <span className="text-sm text-muted-foreground">Hombros y brazos</span>
+                      <span className="text-sm text-muted-foreground">
+                        Hombros y brazos
+                      </span>
                     </div>
-                    <div className="text-sm text-muted-foreground">16 de marzo • 45 min</div>
+                    <div className="text-sm text-muted-foreground">
+                      16 de marzo • 45 min
+                    </div>
                   </div>
                 </div>
               </div>
@@ -297,7 +286,9 @@ export default function DashboardPage() {
           <Card>
             <CardHeader>
               <CardTitle>Estadísticas de salud</CardTitle>
-              <CardDescription>Métricas importantes para tu bienestar</CardDescription>
+              <CardDescription>
+                Métricas importantes para tu bienestar
+              </CardDescription>
             </CardHeader>
             <CardContent>
               <div className="space-y-4">
@@ -343,6 +334,5 @@ export default function DashboardPage() {
         </div>
       </div>
     </MainLayout>
-  )
+  );
 }
-

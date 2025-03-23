@@ -10,19 +10,39 @@ import { Textarea } from "@/components/ui/textarea"
 import { Badge } from "@/components/ui/badge"
 import { Dumbbell, Loader2, Sparkles, Zap } from "lucide-react"
 import Link from "next/link"
+import { getID } from "@/services/login/authService";
+import { createPlan } from "@/services/training/trainingService";
 
 export default function GenerarRutinaPage() {
   const [generating, setGenerating] = useState(false)
   const [routineGenerated, setRoutineGenerated] = useState(false)
 
-  const handleGenerateRoutine = () => {
-    setGenerating(true)
-    // Simulación de generación de rutina
-    setTimeout(() => {
-      setGenerating(false)
-      setRoutineGenerated(true)
-    }, 3000)
-  }
+  const handleGenerateRoutine = async () => {
+    setGenerating(true);
+  
+    try {
+      const userData = localStorage.getItem("user") 
+        ? JSON.parse(localStorage.getItem("user") as string) 
+        : null;
+  
+      if (userData && userData.id) {
+        const userId = await getID(userData.id);  
+        // Crear plan de entrenamiento personalizado
+        const userPlan = await createPlan(userId);
+  
+        // Aquí puedes usar `userInfo` para generar la rutina basada en sus datos
+      } else {
+        console.error("No se encontró google_id en userData.");}
+    } catch (error) {
+      console.error("Error al obtener los datos del usuario:", error);
+    } finally {
+      setTimeout(() => {
+        setGenerating(false);
+        setRoutineGenerated(true);
+        // window.location.href = "http://localhost:3000/rutina";
+      }, 3000);
+    }
+  };  
 
   return (
     <MainLayout>
@@ -46,91 +66,6 @@ export default function GenerarRutinaPage() {
                     <CardTitle>Configuración de rutina</CardTitle>
                     <CardDescription>Personaliza los parámetros para tu rutina de entrenamiento</CardDescription>
                   </CardHeader>
-                  <CardContent className="space-y-4">
-                    <div className="space-y-2">
-                      <label className="text-sm font-medium">Objetivo principal</label>
-                      <Select defaultValue="hipertrofia">
-                        <SelectTrigger>
-                          <SelectValue placeholder="Selecciona tu objetivo" />
-                        </SelectTrigger>
-                        <SelectContent>
-                          <SelectItem value="perder-peso">Perder peso</SelectItem>
-                          <SelectItem value="hipertrofia">Ganar masa muscular</SelectItem>
-                          <SelectItem value="tonificar">Tonificar el cuerpo</SelectItem>
-                          <SelectItem value="resistencia">Mejorar resistencia</SelectItem>
-                          <SelectItem value="fuerza">Aumentar fuerza</SelectItem>
-                          <SelectItem value="flexibilidad">Mejorar flexibilidad</SelectItem>
-                        </SelectContent>
-                      </Select>
-                    </div>
-
-                    <div className="space-y-2">
-                      <label className="text-sm font-medium">Frecuencia de entrenamiento semanal</label>
-                      <Select defaultValue="4">
-                        <SelectTrigger>
-                          <SelectValue placeholder="Selecciona la frecuencia" />
-                        </SelectTrigger>
-                        <SelectContent>
-                          <SelectItem value="2">2 días por semana</SelectItem>
-                          <SelectItem value="3">3 días por semana</SelectItem>
-                          <SelectItem value="4">4 días por semana</SelectItem>
-                          <SelectItem value="5">5 días por semana</SelectItem>
-                          <SelectItem value="6">6 días por semana</SelectItem>
-                        </SelectContent>
-                      </Select>
-                    </div>
-
-                    <div className="space-y-2">
-                      <label className="text-sm font-medium">Duración preferida de entrenamiento</label>
-                      <Select defaultValue="60">
-                        <SelectTrigger>
-                          <SelectValue placeholder="Selecciona la duración" />
-                        </SelectTrigger>
-                        <SelectContent>
-                          <SelectItem value="30">30 minutos</SelectItem>
-                          <SelectItem value="45">45 minutos</SelectItem>
-                          <SelectItem value="60">60 minutos</SelectItem>
-                          <SelectItem value="90">90 minutos</SelectItem>
-                        </SelectContent>
-                      </Select>
-                    </div>
-
-                    <div className="space-y-2">
-                      <label className="text-sm font-medium">Equipamiento disponible</label>
-                      <Select defaultValue="gimnasio">
-                        <SelectTrigger>
-                          <SelectValue placeholder="Selecciona el equipamiento" />
-                        </SelectTrigger>
-                        <SelectContent>
-                          <SelectItem value="ninguno">Sin equipamiento (en casa)</SelectItem>
-                          <SelectItem value="basico">Equipamiento básico (mancuernas, bandas)</SelectItem>
-                          <SelectItem value="gimnasio">Acceso a gimnasio completo</SelectItem>
-                        </SelectContent>
-                      </Select>
-                    </div>
-
-                    <div className="space-y-2">
-                      <label className="text-sm font-medium">Nivel de experiencia</label>
-                      <Select defaultValue="intermedio">
-                        <SelectTrigger>
-                          <SelectValue placeholder="Selecciona tu nivel" />
-                        </SelectTrigger>
-                        <SelectContent>
-                          <SelectItem value="principiante">Principiante</SelectItem>
-                          <SelectItem value="intermedio">Intermedio</SelectItem>
-                          <SelectItem value="avanzado">Avanzado</SelectItem>
-                        </SelectContent>
-                      </Select>
-                    </div>
-
-                    <div className="space-y-2">
-                      <label className="text-sm font-medium">Preferencias adicionales (opcional)</label>
-                      <Textarea
-                        placeholder="Describe cualquier preferencia adicional, como grupos musculares que quieras priorizar, ejercicios específicos que te gusten o que quieras evitar, etc."
-                        className="min-h-[100px]"
-                      />
-                    </div>
-                  </CardContent>
                   <CardFooter>
                     <Button className="w-full gap-2" onClick={handleGenerateRoutine} disabled={generating}>
                       {generating ? (

@@ -1,10 +1,12 @@
 "use client";
 import React, { createContext, useContext, useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
-import { auth, provider, signInWithPopup, signOut } from "@/services/login/firebase";
+import Cookies from "js-cookie";
+import { auth, provider, signInWithPopup } from "@/services/login/firebase";
 import { signInWithGoogleBackend } from "@/services/login/authService";
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
+import { Auth, signOut } from "firebase/auth";
 
 type User = {
   id: string;
@@ -27,7 +29,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [isLoading, setIsLoading] = useState(false);
   const router = useRouter();
 
-  // Persist user data in localStorage (optional)
+  // Persistir usuario desde localStorage
   useEffect(() => {
     const storedUser = localStorage.getItem("user");
     if (storedUser) {
@@ -35,7 +37,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     }
   }, []);
 
-  // Effect to store the user in localStorage when it changes
+  // Guardar usuario en localStorage
   useEffect(() => {
     if (user) {
       localStorage.setItem("user", JSON.stringify(user));
@@ -49,38 +51,50 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       const credential = result.user;
       const token = await credential.getIdToken();
   
-      // Guardar el token en localStorage para que persista entre recargas
-      localStorage.setItem("token", token);
-      localStorage.setItem("user", JSON.stringify({
+      // Enviar token a backend
+      const backendResponse = await signInWithGoogleBackend(token);
+      // Guardar el token y la ruta en cookies
+      Cookies.set("access_token", backendResponse.access_token, { expires: 1, path: "/" });
+      Cookies.set("ruta", backendResponse.ruta.toString(), { expires: 1, path: "/" });
+      // Guardar datos del usuario
+      const userData = {
         id: credential.uid,
         email: credential.email || '',
         name: credential.displayName || '',
         avatar: credential.photoURL ?? undefined,
-      }));
+      };
+      localStorage.setItem("user", JSON.stringify(userData));
+
+      // Redirigir según la ruta del backend
+      router.push(backendResponse.ruta === 1 ? "/dashboard" : "/datos-fisicos");
   
-      // Guardar el tiempo de expiración del token (por ejemplo, 1 hora de expiración)
-      const expirationTime = Date.now() + 3600000; // 1 hora de expiración
-      localStorage.setItem("tokenExpiration", expirationTime.toString());
-  
-      // Redirigir al dashboard
-      router.push("/dashboard");
-  
-      toast.success(`Bienvenido a FitPro, ${credential.displayName}!`);
+      toast.success(`Bienvenido a SmartTrainer, ${credential.displayName}!`);
     } catch (error) {
-      console.error("Error en el proceso de autenticación:", error);
+      console.error("Error en la autenticación:", error);
       toast.error("Hubo un error con la autenticación.");
     } finally {
       setIsLoading(false);
     }
   };
   
+  
 
   const signOutUser = async () => {
     setIsLoading(true);
+  
     try {
-      await signOut(auth);
+      if (!auth) {
+        throw new Error("Firebase Auth no está disponible.");
+      }
+  
+      await signOut(auth); // Llamar correctamente a signOut de Firebase
       setUser(null);
-      setTimeout(() => router.push("/"), 300);
+  
+      // Eliminar token de cookies y limpiar localStorage
+      Cookies.remove("access_token");
+      localStorage.removeItem("user");
+  
+      await router.push("/"); // Asegurar que la navegación se complete
     } catch (error) {
       console.error("❌ Error al cerrar sesión:", error);
       toast.error("Hubo un problema al cerrar sesión.");
@@ -88,11 +102,13 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       setIsLoading(false);
     }
   };
+  
+  
 
   return (
     <AuthContext.Provider value={{ user, signInWithGoogle, signOutUser, isLoading }}>
       {children}
-      <ToastContainer /> {/* Este contenedor de notificaciones debería estar solo una vez en la aplicación */}
+      <ToastContainer />
     </AuthContext.Provider>
   );
 }

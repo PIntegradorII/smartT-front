@@ -1,3 +1,6 @@
+"use client"
+
+import { useRouter } from "next/navigation"
 import Link from "next/link"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
@@ -6,45 +9,53 @@ import { Label } from "@/components/ui/label"
 import { Dumbbell } from "lucide-react"
 
 export default function RegistroPage() {
+  const router = useRouter()
+
+  const handleGoogleSignUp = () => {
+    // Aquí podrías incluir la lógica de autenticación con Google
+    // Luego redirecciona al formulario de Datos Físicos
+    router.push("/datos-fisicos")
+  }
+
   return (
     <div className="min-h-screen flex flex-col items-center justify-center p-4 bg-muted/30">
       <Link href="/" className="absolute top-8 left-8 flex items-center gap-2">
         <div className="h-8 w-8 rounded-full gradient-purple flex items-center justify-center">
           <Dumbbell className="h-4 w-4 text-white" />
         </div>
-        <span className="font-bold text-xl">FitPro</span>
+        <span className="font-bold text-xl">SmartTrainer</span>
       </Link>
 
       <Card className="w-full max-w-md shadow-lg">
         <CardHeader className="space-y-1">
           <CardTitle className="text-2xl font-bold text-center">Crear cuenta</CardTitle>
-          <CardDescription className="text-center">Ingresa tus datos para registrarte en FitPro</CardDescription>
+          <CardDescription className="text-center">Ingresa tus datos para registrarte en SmartTrainer</CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
-          <div className="grid grid-cols-2 gap-4">
-            <div className="space-y-2">
-              <Label htmlFor="nombre">Nombre</Label>
-              <Input id="nombre" placeholder="Juan" />
+          {/* Campos de registro */}
+          <div className="space-y-4">
+            <div className="grid grid-cols-2 gap-4">
+              <div className="space-y-2">
+                <Label htmlFor="nombre">Nombre</Label>
+                <Input id="nombre" placeholder="Juan" />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="apellido">Apellido</Label>
+                <Input id="apellido" placeholder="Pérez" />
+              </div>
             </div>
             <div className="space-y-2">
-              <Label htmlFor="apellido">Apellido</Label>
-              <Input id="apellido" placeholder="Pérez" />
+              <Label htmlFor="email">Correo electrónico</Label>
+              <Input id="email" type="email" placeholder="ejemplo@correo.com" />
             </div>
-          </div>
-          <div className="space-y-2">
-            <Label htmlFor="email">Correo electrónico</Label>
-            <Input id="email" type="email" placeholder="ejemplo@correo.com" />
-          </div>
-          <div className="space-y-2">
-            <Label htmlFor="password">Contraseña</Label>
-            <Input id="password" type="password" />
-          </div>
-          <div className="space-y-2">
-            <Label htmlFor="confirm-password">Confirmar contraseña</Label>
-            <Input id="confirm-password" type="password" />
+            <div className="space-y-2">
+              <Label htmlFor="password">Contraseña</Label>
+              <Input id="password" type="password" />
+            </div>
           </div>
           <Button className="w-full">Registrarse</Button>
 
+          {/* Línea divisoria */}
           <div className="relative">
             <div className="absolute inset-0 flex items-center">
               <span className="w-full border-t" />
@@ -54,8 +65,10 @@ export default function RegistroPage() {
             </div>
           </div>
 
-          <Button variant="outline" className="w-full">
+          {/* Botón de Google */}
+          <Button variant="outline" className="w-full" onClick={handleGoogleSignUp}>
             <svg className="mr-2 h-4 w-4" viewBox="0 0 24 24">
+              {/* Icono de Google */}
               <path
                 d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"
                 fill="#4285F4"
@@ -88,4 +101,3 @@ export default function RegistroPage() {
     </div>
   )
 }
-
