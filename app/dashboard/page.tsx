@@ -5,7 +5,8 @@ import { Progress } from "@/components/ui/progress"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Activity, Calendar, Dumbbell, Flame, Heart, TrendingUp, Trophy, Zap } from "lucide-react"
 import { QuickAccess } from "@/components/quick-access"
-
+import { WeeklyCalendarAlt as WeeklyCalendar } from "@/app/resumen/resumen" // Update the path to the correct location
+// Ensure the file exists or update the path to the correct location
 export default function DashboardPage() {
   return (
     <MainLayout>
@@ -14,11 +15,8 @@ export default function DashboardPage() {
           <h1 className="text-3xl font-bold tracking-tight">¡Bienvenido, Juan!</h1>
           <p className="text-muted-foreground">Aquí tienes un resumen de tu progreso y tu rutina de hoy.</p>
         </div>
-
-        {/* Acceso rápido */}
+        <WeeklyCalendar />
         <QuickAccess />
-
-        {/* Resumen */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
           <Card>
             <CardContent className="p-6 flex flex-col items-center justify-center text-center">
