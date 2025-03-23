@@ -13,6 +13,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import {
   Activity,
   Calendar,
+  CheckCircle,
   Dumbbell,
   Flame,
   Heart,
@@ -21,19 +22,23 @@ import {
   Zap,
 } from "lucide-react";
 import { QuickAccess } from "@/components/quick-access";
-import { getDailyExerciseLog, logExercise, updateLogByUserAndDate } from "@/services/logs_exercises/logs";
+import {
+  getDailyExerciseLog,
+  logExercise,
+  updateLogByUserAndDate,
+} from "@/services/logs_exercises/logs";
 import { useEffect, useState } from "react";
 import { getID } from "../../services/login/authService";
-
 
 export default function DashboardPage() {
   const [isCompleted, setIsCompleted] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [userId, setUserId] = useState<number | null>(null);
-
+  const [log, setLog] = useState<boolean | null>(null);
   useEffect(() => {
     const initializeLog = async () => {
       try {
+        const today = new Date().toLocaleDateString("en-CA");
         // Obtén el ID del usuario
         const userData = localStorage.getItem("user")
           ? JSON.parse(localStorage.getItem("user") as string)
@@ -47,7 +52,10 @@ export default function DashboardPage() {
           date: new Date().toISOString().split("T")[0], // Fecha en formato YYYY-MM-DD
           completed: false,
         };
-       // await logExercise(data);
+        const user_log = await getDailyExerciseLog(fetchedId, today);
+        setLog(user_log.completed);
+        //console.log(log.completed)
+        // await logExercise(data);
       } catch (error) {
         console.error("Error initializing log:", error);
       }
@@ -59,22 +67,18 @@ export default function DashboardPage() {
     setIsLoading(true);
     try {
       // Obtén la fecha de hoy en formato YYYY-MM-DD
-      const today = new Date().toLocaleDateString("en-CA"); // Formato: YYYY-MM-DD
-      console.log("Fecha de hoy:", today);
-      console.log("ID de usuario:", userId);
-  
-      // Verifica si existe un registro diario
-    //  const log = await getDailyExerciseLog(userId, today);
-     // console.log("Registro diario obtenido:", log);
-  
-      // Actualiza el registro a `completed: 1`
+      const today = new Date().toLocaleDateString("en-CA");
+
+      // Actualiza el log a `completed: 1`
       const updatedLog = await updateLogByUserAndDate(userId, today, 1);
       console.log("Log actualizado:", updatedLog);
-  
+
+      // Actualiza el estado local para reflejar los cambios inmediatamente
+      setLog(true);
       setIsCompleted(true);
     } catch (error) {
       console.error("Error al completar la rutina:", error);
-  
+
       // Manejar caso de log no encontrado
       if (error.response?.status === 404) {
         console.error("No se encontró un log para hoy.");
@@ -83,8 +87,7 @@ export default function DashboardPage() {
       setIsLoading(false);
     }
   };
-  
-  
+//datos
   return (
     <MainLayout>
       <div className="flex flex-col gap-6">
@@ -154,195 +157,115 @@ export default function DashboardPage() {
               <CardTitle>Tu rutina de hoy</CardTitle>
               <CardDescription>Lunes, 13 de marzo</CardDescription>
             </div>
-            <Button onClick={handleCompleteRoutine} disabled={isLoading || isCompleted}>
-              <Dumbbell className="mr-2 h-4 w-4" />
-              {isCompleted ? "Rutina completada" : "Comenzar entrenamiento"}
-            </Button>
+            {!isCompleted && !log && (
+              <Button onClick={handleCompleteRoutine} disabled={isLoading}>
+                <Dumbbell className="mr-2 h-4 w-4" />
+                {isLoading ? "Cargando..." : "Rutina terminada"}
+              </Button>
+            )}
           </CardHeader>
-          <CardContent>
-            <Tabs defaultValue="ejercicios">
-              <TabsList className="mb-4">
-                <TabsTrigger value="ejercicios">Ejercicios</TabsTrigger>
-                <TabsTrigger value="nutricion">Nutrición</TabsTrigger>
-              </TabsList>
+          {log ? (
+              <div className="flex flex-col items-center gap-4 mt-4 mb-4">
+              <CheckCircle className="h-16 w-16 text-green-600" />
+              <h2 className="text-xl font-bold text-center">
+                Rutina de hoy terminada
+              </h2>
+            </div>
+          ) : (
+            <>
+              <div>
+                <CardContent>
+                  <Tabs defaultValue="ejercicios">
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      {/* Ejercicio 1 */}
+                      <Card>
+                        <CardContent className="p-4 flex items-center gap-4">
+                          <div className="h-16 w-16 rounded-lg bg-muted flex items-center justify-center">
+                            <Dumbbell className="h-8 w-8 text-primary" />
+                          </div>
+                          <div className="flex-1">
+                            <div className="flex justify-between items-center mb-1">
+                              <h4 className="font-medium">Press de banca</h4>
+                              <span className="text-sm text-muted-foreground">
+                                4 series
+                              </span>
+                            </div>
+                            <div className="text-sm text-muted-foreground mb-2">
+                              12 repeticiones • 60kg
+                            </div>
+                            <Progress value={0} className="h-2" />
+                          </div>
+                        </CardContent>
+                      </Card>
 
-              <TabsContent value="ejercicios" className="space-y-4">
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  {/* Ejercicio 1 */}
-                  <Card>
-                    <CardContent className="p-4 flex items-center gap-4">
-                      <div className="h-16 w-16 rounded-lg bg-muted flex items-center justify-center">
-                        <Dumbbell className="h-8 w-8 text-primary" />
-                      </div>
-                      <div className="flex-1">
-                        <div className="flex justify-between items-center mb-1">
-                          <h4 className="font-medium">Press de banca</h4>
-                          <span className="text-sm text-muted-foreground">
-                            4 series
-                          </span>
-                        </div>
-                        <div className="text-sm text-muted-foreground mb-2">
-                          12 repeticiones • 60kg
-                        </div>
-                        <Progress value={0} className="h-2" />
-                      </div>
-                    </CardContent>
-                  </Card>
+                      {/* Ejercicio 2 */}
+                      <Card>
+                        <CardContent className="p-4 flex items-center gap-4">
+                          <div className="h-16 w-16 rounded-lg bg-muted flex items-center justify-center">
+                            <Dumbbell className="h-8 w-8 text-primary" />
+                          </div>
+                          <div className="flex-1">
+                            <div className="flex justify-between items-center mb-1">
+                              <h4 className="font-medium">Dominadas</h4>
+                              <span className="text-sm text-muted-foreground">
+                                3 series
+                              </span>
+                            </div>
+                            <div className="text-sm text-muted-foreground mb-2">
+                              10 repeticiones • Peso corporal
+                            </div>
+                            <Progress value={0} className="h-2" />
+                          </div>
+                        </CardContent>
+                      </Card>
 
-                  {/* Ejercicio 2 */}
-                  <Card>
-                    <CardContent className="p-4 flex items-center gap-4">
-                      <div className="h-16 w-16 rounded-lg bg-muted flex items-center justify-center">
-                        <Dumbbell className="h-8 w-8 text-primary" />
-                      </div>
-                      <div className="flex-1">
-                        <div className="flex justify-between items-center mb-1">
-                          <h4 className="font-medium">Dominadas</h4>
-                          <span className="text-sm text-muted-foreground">
-                            3 series
-                          </span>
-                        </div>
-                        <div className="text-sm text-muted-foreground mb-2">
-                          10 repeticiones • Peso corporal
-                        </div>
-                        <Progress value={0} className="h-2" />
-                      </div>
-                    </CardContent>
-                  </Card>
+                      {/* Ejercicio 3 */}
+                      <Card>
+                        <CardContent className="p-4 flex items-center gap-4">
+                          <div className="h-16 w-16 rounded-lg bg-muted flex items-center justify-center">
+                            <Dumbbell className="h-8 w-8 text-primary" />
+                          </div>
+                          <div className="flex-1">
+                            <div className="flex justify-between items-center mb-1">
+                              <h4 className="font-medium">Remo con barra</h4>
+                              <span className="text-sm text-muted-foreground">
+                                4 series
+                              </span>
+                            </div>
+                            <div className="text-sm text-muted-foreground mb-2">
+                              12 repeticiones • 50kg
+                            </div>
+                            <Progress value={0} className="h-2" />
+                          </div>
+                        </CardContent>
+                      </Card>
 
-                  {/* Ejercicio 3 */}
-                  <Card>
-                    <CardContent className="p-4 flex items-center gap-4">
-                      <div className="h-16 w-16 rounded-lg bg-muted flex items-center justify-center">
-                        <Dumbbell className="h-8 w-8 text-primary" />
-                      </div>
-                      <div className="flex-1">
-                        <div className="flex justify-between items-center mb-1">
-                          <h4 className="font-medium">Remo con barra</h4>
-                          <span className="text-sm text-muted-foreground">
-                            4 series
-                          </span>
-                        </div>
-                        <div className="text-sm text-muted-foreground mb-2">
-                          12 repeticiones • 50kg
-                        </div>
-                        <Progress value={0} className="h-2" />
-                      </div>
-                    </CardContent>
-                  </Card>
-
-                  {/* Ejercicio 4 */}
-                  <Card>
-                    <CardContent className="p-4 flex items-center gap-4">
-                      <div className="h-16 w-16 rounded-lg bg-muted flex items-center justify-center">
-                        <Dumbbell className="h-8 w-8 text-primary" />
-                      </div>
-                      <div className="flex-1">
-                        <div className="flex justify-between items-center mb-1">
-                          <h4 className="font-medium">Curl de bíceps</h4>
-                          <span className="text-sm text-muted-foreground">
-                            3 series
-                          </span>
-                        </div>
-                        <div className="text-sm text-muted-foreground mb-2">
-                          15 repeticiones • 15kg
-                        </div>
-                        <Progress value={0} className="h-2" />
-                      </div>
-                    </CardContent>
-                  </Card>
-                </div>
-              </TabsContent>
-
-              <TabsContent value="nutricion">
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  {/* Desayuno */}
-                  <Card>
-                    <CardContent className="p-4">
-                      <h4 className="font-medium mb-2">Desayuno</h4>
-                      <ul className="space-y-1 text-sm">
-                        <li className="flex items-center gap-2">
-                          <span className="h-2 w-2 rounded-full bg-success"></span>
-                          Avena con plátano y miel (300 kcal)
-                        </li>
-                        <li className="flex items-center gap-2">
-                          <span className="h-2 w-2 rounded-full bg-success"></span>
-                          Yogur griego con nueces (150 kcal)
-                        </li>
-                        <li className="flex items-center gap-2">
-                          <span className="h-2 w-2 rounded-full bg-success"></span>
-                          Café negro o té verde
-                        </li>
-                      </ul>
-                    </CardContent>
-                  </Card>
-
-                  {/* Almuerzo */}
-                  <Card>
-                    <CardContent className="p-4">
-                      <h4 className="font-medium mb-2">Almuerzo</h4>
-                      <ul className="space-y-1 text-sm">
-                        <li className="flex items-center gap-2">
-                          <span className="h-2 w-2 rounded-full bg-success"></span>
-                          Pechuga de pollo a la plancha (200 kcal)
-                        </li>
-                        <li className="flex items-center gap-2">
-                          <span className="h-2 w-2 rounded-full bg-success"></span>
-                          Arroz integral (150 kcal)
-                        </li>
-                        <li className="flex items-center gap-2">
-                          <span className="h-2 w-2 rounded-full bg-success"></span>
-                          Ensalada de verduras (100 kcal)
-                        </li>
-                      </ul>
-                    </CardContent>
-                  </Card>
-
-                  {/* Cena */}
-                  <Card>
-                    <CardContent className="p-4">
-                      <h4 className="font-medium mb-2">Cena</h4>
-                      <ul className="space-y-1 text-sm">
-                        <li className="flex items-center gap-2">
-                          <span className="h-2 w-2 rounded-full bg-success"></span>
-                          Salmón al horno (250 kcal)
-                        </li>
-                        <li className="flex items-center gap-2">
-                          <span className="h-2 w-2 rounded-full bg-success"></span>
-                          Batata asada (100 kcal)
-                        </li>
-                        <li className="flex items-center gap-2">
-                          <span className="h-2 w-2 rounded-full bg-success"></span>
-                          Brócoli al vapor (50 kcal)
-                        </li>
-                      </ul>
-                    </CardContent>
-                  </Card>
-
-                  {/* Snacks */}
-                  <Card>
-                    <CardContent className="p-4">
-                      <h4 className="font-medium mb-2">Snacks</h4>
-                      <ul className="space-y-1 text-sm">
-                        <li className="flex items-center gap-2">
-                          <span className="h-2 w-2 rounded-full bg-success"></span>
-                          Batido de proteínas (150 kcal)
-                        </li>
-                        <li className="flex items-center gap-2">
-                          <span className="h-2 w-2 rounded-full bg-success"></span>
-                          Manzana con mantequilla de almendras (200 kcal)
-                        </li>
-                        <li className="flex items-center gap-2">
-                          <span className="h-2 w-2 rounded-full bg-success"></span>
-                          Puñado de frutos secos (100 kcal)
-                        </li>
-                      </ul>
-                    </CardContent>
-                  </Card>
-                </div>
-              </TabsContent>
-            </Tabs>
-          </CardContent>
+                      {/* Ejercicio 4 */}
+                      <Card>
+                        <CardContent className="p-4 flex items-center gap-4">
+                          <div className="h-16 w-16 rounded-lg bg-muted flex items-center justify-center">
+                            <Dumbbell className="h-8 w-8 text-primary" />
+                          </div>
+                          <div className="flex-1">
+                            <div className="flex justify-between items-center mb-1">
+                              <h4 className="font-medium">Curl de bíceps</h4>
+                              <span className="text-sm text-muted-foreground">
+                                3 series
+                              </span>
+                            </div>
+                            <div className="text-sm text-muted-foreground mb-2">
+                              15 repeticiones • 15kg
+                            </div>
+                            <Progress value={0} className="h-2" />
+                          </div>
+                        </CardContent>
+                      </Card>
+                    </div>
+                  </Tabs>
+                </CardContent>
+              </div>
+            </>
+          )}
         </Card>
 
         {/* Próximos entrenamientos */}
