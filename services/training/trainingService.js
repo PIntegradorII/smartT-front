@@ -35,27 +35,27 @@ export const getUserData = async (userId) => {
 
 
 // Crear plan de entrenamiento con los datos del usuario
-export const createPlan = async (userId) => {
-    try {
-      // Obtener datos del usuario
-      const userInfo = await getUserData(userId);
+// export const createPlan = async (userId) => {
+//     try {
+//       // Obtener datos del usuario
+//       const userInfo = await getUserData(userId);
   
-      // Enviar los datos al backend para generar el plan
-      const response = await api.get("/training/training-plan", {
-        params: userInfo, // Enviar los datos como parámetros de consulta
-      });
+//       // Enviar los datos al backend para generar el plan
+//       const response = await api.get("/training/training-plan", {
+//         params: userInfo, // Enviar los datos como parámetros de consulta
+//       });
   
-      if (!response.data) {
-        throw new Error("No se pudo generar el plan de entrenamiento");
-      }
+//       if (!response.data) {
+//         throw new Error("No se pudo generar el plan de entrenamiento");
+//       }
   
-    //   console.log("Plan de entrenamiento generado:", response.data);
-      return response.data;
-    } catch (error) {
-      console.error("Error en createPlan:", error);
-      throw error;
-    }
-  };
+//     //   console.log("Plan de entrenamiento generado:", response.data);
+//       return response.data;
+//     } catch (error) {
+//       console.error("Error en createPlan:", error);
+//       throw error;
+//     }
+//   };
 
   export const getDailyPlan = async (userId) => {
     try {
@@ -68,3 +68,77 @@ export const createPlan = async (userId) => {
       throw error;
     }
   };
+
+  export const regenerateRoutineDay = async (user_id, day, routine) => {
+    try {
+      const response = await api.post("/training/generate-daily-training", 
+        {
+          current_routine: routine  // Se envía en el body
+        },
+        {
+          params: { day_of_week: day },  // Se envía como query parameter
+        }
+      );
+      const newRoutine = response.data.new_routine.current_routine;
+      await updateRoutine(user_id, day, newRoutine);
+    } catch (error) {
+      console.error("Error al regenerar la rutina:", error.response?.data || error.message);
+    }
+  };
+
+
+  export const updateRoutine = async (userId, day, routine) => {
+    try {
+        const response = await api.put(`/training/update-routine`, 
+            routine, // Aquí enviamos un objeto con la rutina
+            {
+                params: {  
+                    user_id: userId,
+                    day_of_week: day
+                }
+            }
+        );
+
+        console.log("Rutina actualizada:", response);
+        return response.data;
+    } catch (error) {
+        console.error("Error al actualizar la rutina:", error.response?.data || error.message);
+    }
+};
+
+  
+export const createPlan = async (userId) => {
+  try {
+    // Obtener datos del usuario
+    const userInfo = await getUserData(userId);
+
+    // Obtener el plan de entrenamiento generado
+    const response = await api.get("/training/training-plan", {
+      params: userInfo, // Enviar los datos como parámetros de consulta
+    });
+    
+    if (!response.data) {
+      throw new Error("No se pudo generar el plan de entrenamiento");
+    }
+    
+    const trainingPlan = {
+      user_id: userId,  // Agrega el user_id esperado por el backend
+      ...response.data, // Mantiene los días de la semana como están
+    };
+    
+    console.log("Datos enviados en POST:", trainingPlan);
+
+    // Guardar el plan de entrenamiento en el backend
+    const saveResponse = await api.post("/training/training-plan", trainingPlan);
+
+    if (!saveResponse.data) {
+      throw new Error("No se pudo guardar el plan de entrenamiento");
+    }
+
+    console.log("Plan de entrenamiento guardado:", saveResponse.data);
+    return saveResponse.data;
+  } catch (error) {
+    console.error("Error en createPlan:", error);
+    throw error;
+  }
+};

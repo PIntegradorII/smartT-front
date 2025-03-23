@@ -23,13 +23,13 @@ export default function RegistroPage() {
         <div className="h-8 w-8 rounded-full gradient-purple flex items-center justify-center">
           <Dumbbell className="h-4 w-4 text-white" />
         </div>
-        <span className="font-bold text-xl">FitPro</span>
+        <span className="font-bold text-xl">SmartTrainer</span>
       </Link>
 
       <Card className="w-full max-w-md shadow-lg">
         <CardHeader className="space-y-1">
           <CardTitle className="text-2xl font-bold text-center">Crear cuenta</CardTitle>
-          <CardDescription className="text-center">Ingresa tus datos para registrarte en FitPro</CardDescription>
+          <CardDescription className="text-center">Ingresa tus datos para registrarte en SmartTrainer</CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
           {/* Campos de registro */}

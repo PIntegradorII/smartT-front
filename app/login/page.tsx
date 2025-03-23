@@ -28,7 +28,7 @@ export default function LoginForm() {
               <Dumbbell className="w-6 h-6 text-white" />
             </div>
           </div>
-          <CardTitle className="text-3xl font-bold text-gray-900">FitPro</CardTitle>
+          <CardTitle className="text-3xl font-bold text-gray-900">SmartTrainer</CardTitle>
           <CardDescription className="text-lg text-gray-600">
             Tu compañero de entrenamiento personal
           </CardDescription>

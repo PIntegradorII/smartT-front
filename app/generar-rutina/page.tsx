@@ -39,6 +39,7 @@ export default function GenerarRutinaPage() {
       setTimeout(() => {
         setGenerating(false);
         setRoutineGenerated(true);
+        // window.location.href = "http://localhost:3000/rutina";
       }, 3000);
     }
   };  

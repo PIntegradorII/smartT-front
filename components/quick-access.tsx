@@ -8,8 +8,8 @@ export function QuickAccess() {
     { name: "Rutina", href: "/rutina", icon: Dumbbell, color: "bg-secondary" },
     { name: "Generar Rutina", href: "/generar-rutina", icon: Sparkles, color: "bg-accent" },
     { name: "Progreso", href: "/progreso", icon: BarChart3, color: "bg-success" },
-    { name: "Perfil", href: "/perfil", icon: User, color: "bg-primary" },
-    { name: "Admin", href: "/admin", icon: Settings, color: "bg-secondary" },
+    // { name: "Perfil", href: "/perfil", icon: User, color: "bg-primary" },
+    // { name: "Admin", href: "/admin", icon: Settings, color: "bg-secondary" },
   ]
 
   return (

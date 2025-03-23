@@ -71,7 +71,7 @@ export default function DatosFisicosPage() {
         <div className="h-8 w-8 rounded-full gradient-purple flex items-center justify-center">
           <Dumbbell className="h-4 w-4 text-white" />
         </div>
-        <span className="font-bold text-xl">FitPro</span>
+        <span className="font-bold text-xl">SmartTrainer</span>
       </Link>
 
       <div className="w-full max-w-md">

@@ -28,11 +28,11 @@ export function MainLayout({ children }: MainLayoutProps) {
     { name: "Inicio", href: "/dashboard", icon: Home },
     { name: "Rutina", href: "/rutina", icon: Dumbbell },
     { name: "Progreso", href: "/progreso", icon: BarChart3 },
-    { name: "Calendario", href: "/calendario", icon: Calendar },
+    // { name: "Calendario", href: "/calendario", icon: Calendar },
     { name: "Generar Rutina", href: "/generar-rutina", icon: Sparkles },
     { name: "Perfil", href: "/perfil", icon: User },
-    { name: "Administración", href: "/admin", icon: Settings },
-    { name: "Configuración", href: "/configuracion", icon: Settings },
+    // { name: "Administración", href: "/admin", icon: Settings },
+    // { name: "Configuración", href: "/configuracion", icon: Settings },
   ]
 
   const handleLogout = async () => {
@@ -59,7 +59,7 @@ export function MainLayout({ children }: MainLayoutProps) {
               <div className="h-8 w-8 rounded-full bg-primary flex items-center justify-center">
                 <Dumbbell className="h-4 w-4 text-white" />
               </div>
-              <span className="font-bold text-xl hidden sm:inline-block">FitPro</span>
+              <span className="font-bold text-xl hidden sm:inline-block">SmartTrainer</span>
             </Link>
           </div>
           <div className="flex items-center gap-4">
@@ -91,7 +91,7 @@ export function MainLayout({ children }: MainLayoutProps) {
                   <div className="h-8 w-8 rounded-full bg-primary flex items-center justify-center">
                     <Dumbbell className="h-4 w-4 text-white" />
                   </div>
-                  <span className="font-bold text-xl">FitPro</span>
+                  <span className="font-bold text-xl">SmartTrainer</span>
                 </Link>
                 <Button variant="ghost" size="icon" onClick={() => setSidebarOpen(false)}>
                   <X className="h-5 w-5" />

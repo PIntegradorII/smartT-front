@@ -68,7 +68,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       // Redirigir según la ruta del backend
       router.push(backendResponse.ruta === 1 ? "/dashboard" : "/datos-fisicos");
   
-      toast.success(`Bienvenido a FitPro, ${credential.displayName}!`);
+      toast.success(`Bienvenido a SmartTrainer, ${credential.displayName}!`);
     } catch (error) {
       console.error("Error en la autenticación:", error);
       toast.error("Hubo un error con la autenticación.");

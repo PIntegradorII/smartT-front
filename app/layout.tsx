@@ -10,7 +10,7 @@ import Loading from "@/components/ui/loading"; // Importa el componente Loading
 const inter = Inter({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
-  title: "FitPro - Tu aplicación de fitness",
+  title: "SmartTrainer - Tu aplicación de fitness",
   description: "Aplicación de fitness personalizada con IA",
 };
 

@@ -13,7 +13,7 @@ export default function Home() {
             <div className="h-8 w-8 rounded-full gradient-purple flex items-center justify-center">
               <Dumbbell className="h-4 w-4 text-white" />
             </div>
-            <span className="font-bold text-xl">FitPro</span>
+            <span className="font-bold text-xl">SmartTrainer</span>
           </div>
           <div className="flex items-center gap-4">
             <Link href="/login">
@@ -104,9 +104,9 @@ export default function Home() {
             <div className="h-8 w-8 rounded-full gradient-purple flex items-center justify-center">
               <Dumbbell className="h-4 w-4 text-white" />
             </div>
-            <span className="font-bold">FitPro</span>
+            <span className="font-bold">SmartTrainer</span>
           </div>
-          <p className="text-sm text-muted-foreground">© 2024 FitPro. Todos los derechos reservados.</p>
+          <p className="text-sm text-muted-foreground">© 2024 SmartTrainer. Todos los derechos reservados.</p>
         </div>
       </footer>
     </div>
