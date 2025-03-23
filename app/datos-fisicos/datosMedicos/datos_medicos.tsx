@@ -84,12 +84,9 @@ const HealthForm: React.FC<HealthFormProps> = ({
         confirmacion: formData.confirmacion ? "si" : "no",
       };
 
-      console.log("Datos a enviar:", datosAEnviar);
 
       const response = await createHealthData(datosAEnviar);
-      console.log("Respuesta del servidor:", response);
       Cookies.set("ruta", "1", { expires: 1, path: "/" });
-      console.log("Cookie 'ruta' actualizada");
 
       router.push("/dashboard");
 

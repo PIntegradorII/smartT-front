@@ -50,11 +50,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       const result = await signInWithPopup(auth, provider);
       const credential = result.user;
       const token = await credential.getIdToken();
-      console.log("🔥 Token de Firebase:", token);
   
       // Enviar token a backend
       const backendResponse = await signInWithGoogleBackend(token);
-      console.log("🔥 Respuesta del backend:", backendResponse);
       // Guardar el token y la ruta en cookies
       Cookies.set("access_token", backendResponse.access_token, { expires: 1, path: "/" });
       Cookies.set("ruta", backendResponse.ruta.toString(), { expires: 1, path: "/" });

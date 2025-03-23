@@ -6,12 +6,10 @@ export const getUserData = async (userId) => {
     // Obtener datos básicos del usuario
     const userResponse = await api.get(`/users/users/${userId}`);
     const user = userResponse.data;
-    console.log(user);
 
     // Obtener datos de salud
     const healthResponse = await api.get(`/health/health/user/${userId}`);
     const healthData = healthResponse.data;
-    console.log(healthData);
 
     // Obtener datos personales
     const personalResponse = await api.get(`/personal_data/personal_data/user/${userId}`);
@@ -53,16 +51,12 @@ export const createPlan = async (userId) => {
       ...response.data, // Mantiene los días de la semana como están
     };
     
-    console.log("Datos enviados en POST:", trainingPlan);
-
     // Guardar el plan de entrenamiento en el backend
     const saveResponse = await api.post("/training/training-plan", trainingPlan);
 
     if (!saveResponse.data) {
       throw new Error("No se pudo guardar el plan de entrenamiento");
     }
-
-    console.log("Plan de entrenamiento guardado:", saveResponse.data);
     return saveResponse.data;
   } catch (error) {
     console.error("Error en createPlan:", error);

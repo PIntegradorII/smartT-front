@@ -89,10 +89,7 @@ const PersonalDataForm: React.FC<HealthFormProps> = ({
             ? "F"
             : "Otro",
       };
-      console.log("Datos a enviar:", datosAEnviar);
-      console.log("USER ID:", userId);
       const response = await createPersonalData(datosAEnviar);
-      console.log("Respuesta del servidor:", response);
       onSubmit();
     } catch (error) {
       console.error("Error al enviar los datos personales:", error);

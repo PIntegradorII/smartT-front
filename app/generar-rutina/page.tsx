@@ -27,20 +27,12 @@ export default function GenerarRutinaPage() {
   
       if (userData && userData.id) {
         const userId = await getID(userData.id);  
-        console.log("ID del usuario recuperado:", userId);
-  
-        // Obtener datos del usuario con el user_id correcto
-        // const userInfo = await getUserData(userId);
-        // console.log("Datos del usuario:", userInfo);
-
         // Crear plan de entrenamiento personalizado
         const userPlan = await createPlan(userId);
-        console.log("Plan de entrenamiento generado:", userPlan);
   
         // Aquí puedes usar `userInfo` para generar la rutina basada en sus datos
       } else {
-        console.log("No se encontró el usuario en localStorage o no tiene google_id");
-      }
+        console.error("No se encontró google_id en userData.");}
     } catch (error) {
       console.error("Error al obtener los datos del usuario:", error);
     } finally {
