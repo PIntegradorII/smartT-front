@@ -21,7 +21,8 @@ import {
 import { Input } from "@/components/ui/input";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { createPersonalData } from "@/services/user/personal_data";
-import { getID } from "../../../services/login/authService";export interface HealthFormProps {
+import { getID } from "../../../services/login/authService";
+export interface HealthFormProps {
   handleGeneroChange: (value: string) => void;
   formData: any;
   setFormData: React.Dispatch<React.SetStateAction<any>>;
