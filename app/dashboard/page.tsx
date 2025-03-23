@@ -212,7 +212,7 @@ export default function DashboardPage() {
                 </Card>
               ))
             ) : (
-              <p>Cargando rutina...</p>
+              <p>No hay rutinas por mostrar</p>
             )}
           </CardContent>
               </div>
