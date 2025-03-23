@@ -1,18 +1,100 @@
-import { MainLayout } from "@/components/layout/main-layout"
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import { Button } from "@/components/ui/button"
-import { Progress } from "@/components/ui/progress"
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import { Activity, Calendar, Dumbbell, Flame, Heart, TrendingUp, Trophy, Zap } from "lucide-react"
-import { QuickAccess } from "@/components/quick-access"
+"use client";
+import { MainLayout } from "@/components/layout/main-layout";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Progress } from "@/components/ui/progress";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import {
+  Activity,
+  Calendar,
+  Dumbbell,
+  Flame,
+  Heart,
+  TrendingUp,
+  Trophy,
+  Zap,
+} from "lucide-react";
+import { QuickAccess } from "@/components/quick-access";
+import { getDailyExerciseLog, logExercise, updateLogByUserAndDate } from "@/services/logs_exercises/logs";
+import { useEffect, useState } from "react";
+import { getID } from "../../services/login/authService";
+
 
 export default function DashboardPage() {
+  const [isCompleted, setIsCompleted] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
+  const [userId, setUserId] = useState<number | null>(null);
+
+  useEffect(() => {
+    const initializeLog = async () => {
+      try {
+        // Obtén el ID del usuario
+        const userData = localStorage.getItem("user")
+          ? JSON.parse(localStorage.getItem("user") as string)
+          : null;
+        const fetchedId = await getID(userData.id);
+        setUserId(fetchedId);
+
+        // Crea el log para el día si no existe
+        const data = {
+          user_id: fetchedId,
+          date: new Date().toISOString().split("T")[0], // Fecha en formato YYYY-MM-DD
+          completed: false,
+        };
+       // await logExercise(data);
+      } catch (error) {
+        console.error("Error initializing log:", error);
+      }
+    };
+
+    initializeLog();
+  }, []);
+  const handleCompleteRoutine = async () => {
+    setIsLoading(true);
+    try {
+      // Obtén la fecha de hoy en formato YYYY-MM-DD
+      const today = new Date().toLocaleDateString("en-CA"); // Formato: YYYY-MM-DD
+      console.log("Fecha de hoy:", today);
+      console.log("ID de usuario:", userId);
+  
+      // Verifica si existe un registro diario
+    //  const log = await getDailyExerciseLog(userId, today);
+     // console.log("Registro diario obtenido:", log);
+  
+      // Actualiza el registro a `completed: 1`
+      const updatedLog = await updateLogByUserAndDate(userId, today, 1);
+      console.log("Log actualizado:", updatedLog);
+  
+      setIsCompleted(true);
+    } catch (error) {
+      console.error("Error al completar la rutina:", error);
+  
+      // Manejar caso de log no encontrado
+      if (error.response?.status === 404) {
+        console.error("No se encontró un log para hoy.");
+      }
+    } finally {
+      setIsLoading(false);
+    }
+  };
+  
+  
   return (
     <MainLayout>
       <div className="flex flex-col gap-6">
         <div className="flex flex-col gap-2">
-          <h1 className="text-3xl font-bold tracking-tight">¡Bienvenido, Juan!</h1>
-          <p className="text-muted-foreground">Aquí tienes un resumen de tu progreso y tu rutina de hoy.</p>
+          <h1 className="text-3xl font-bold tracking-tight">
+            ¡Bienvenido, Juan!
+          </h1>
+          <p className="text-muted-foreground">
+            Aquí tienes un resumen de tu progreso y tu rutina de hoy.
+          </p>
         </div>
 
         {/* Acceso rápido */}
@@ -36,7 +118,9 @@ export default function DashboardPage() {
                 <Activity className="h-6 w-6 text-white" />
               </div>
               <div className="text-2xl font-bold">4 de 5</div>
-              <p className="text-sm text-muted-foreground">Entrenamientos completados</p>
+              <p className="text-sm text-muted-foreground">
+                Entrenamientos completados
+              </p>
             </CardContent>
           </Card>
 
@@ -56,7 +140,9 @@ export default function DashboardPage() {
                 <Trophy className="h-6 w-6 text-white" />
               </div>
               <div className="text-2xl font-bold">3</div>
-              <p className="text-sm text-muted-foreground">Logros desbloqueados</p>
+              <p className="text-sm text-muted-foreground">
+                Logros desbloqueados
+              </p>
             </CardContent>
           </Card>
         </div>
@@ -68,9 +154,9 @@ export default function DashboardPage() {
               <CardTitle>Tu rutina de hoy</CardTitle>
               <CardDescription>Lunes, 13 de marzo</CardDescription>
             </div>
-            <Button>
+            <Button onClick={handleCompleteRoutine} disabled={isLoading || isCompleted}>
               <Dumbbell className="mr-2 h-4 w-4" />
-              Comenzar entrenamiento
+              {isCompleted ? "Rutina completada" : "Comenzar entrenamiento"}
             </Button>
           </CardHeader>
           <CardContent>
@@ -91,9 +177,13 @@ export default function DashboardPage() {
                       <div className="flex-1">
                         <div className="flex justify-between items-center mb-1">
                           <h4 className="font-medium">Press de banca</h4>
-                          <span className="text-sm text-muted-foreground">4 series</span>
+                          <span className="text-sm text-muted-foreground">
+                            4 series
+                          </span>
                         </div>
-                        <div className="text-sm text-muted-foreground mb-2">12 repeticiones • 60kg</div>
+                        <div className="text-sm text-muted-foreground mb-2">
+                          12 repeticiones • 60kg
+                        </div>
                         <Progress value={0} className="h-2" />
                       </div>
                     </CardContent>
@@ -108,9 +198,13 @@ export default function DashboardPage() {
                       <div className="flex-1">
                         <div className="flex justify-between items-center mb-1">
                           <h4 className="font-medium">Dominadas</h4>
-                          <span className="text-sm text-muted-foreground">3 series</span>
+                          <span className="text-sm text-muted-foreground">
+                            3 series
+                          </span>
                         </div>
-                        <div className="text-sm text-muted-foreground mb-2">10 repeticiones • Peso corporal</div>
+                        <div className="text-sm text-muted-foreground mb-2">
+                          10 repeticiones • Peso corporal
+                        </div>
                         <Progress value={0} className="h-2" />
                       </div>
                     </CardContent>
@@ -125,9 +219,13 @@ export default function DashboardPage() {
                       <div className="flex-1">
                         <div className="flex justify-between items-center mb-1">
                           <h4 className="font-medium">Remo con barra</h4>
-                          <span className="text-sm text-muted-foreground">4 series</span>
+                          <span className="text-sm text-muted-foreground">
+                            4 series
+                          </span>
                         </div>
-                        <div className="text-sm text-muted-foreground mb-2">12 repeticiones • 50kg</div>
+                        <div className="text-sm text-muted-foreground mb-2">
+                          12 repeticiones • 50kg
+                        </div>
                         <Progress value={0} className="h-2" />
                       </div>
                     </CardContent>
@@ -142,9 +240,13 @@ export default function DashboardPage() {
                       <div className="flex-1">
                         <div className="flex justify-between items-center mb-1">
                           <h4 className="font-medium">Curl de bíceps</h4>
-                          <span className="text-sm text-muted-foreground">3 series</span>
+                          <span className="text-sm text-muted-foreground">
+                            3 series
+                          </span>
                         </div>
-                        <div className="text-sm text-muted-foreground mb-2">15 repeticiones • 15kg</div>
+                        <div className="text-sm text-muted-foreground mb-2">
+                          15 repeticiones • 15kg
+                        </div>
                         <Progress value={0} className="h-2" />
                       </div>
                     </CardContent>
@@ -248,7 +350,9 @@ export default function DashboardPage() {
           <Card>
             <CardHeader>
               <CardTitle>Próximos entrenamientos</CardTitle>
-              <CardDescription>Tu planificación para esta semana</CardDescription>
+              <CardDescription>
+                Tu planificación para esta semana
+              </CardDescription>
             </CardHeader>
             <CardContent>
               <div className="space-y-4">
@@ -259,9 +363,13 @@ export default function DashboardPage() {
                   <div className="flex-1">
                     <div className="flex justify-between items-center">
                       <h4 className="font-medium">Martes</h4>
-                      <span className="text-sm text-muted-foreground">Piernas</span>
+                      <span className="text-sm text-muted-foreground">
+                        Piernas
+                      </span>
                     </div>
-                    <div className="text-sm text-muted-foreground">14 de marzo • 60 min</div>
+                    <div className="text-sm text-muted-foreground">
+                      14 de marzo • 60 min
+                    </div>
                   </div>
                 </div>
 
@@ -272,9 +380,13 @@ export default function DashboardPage() {
                   <div className="flex-1">
                     <div className="flex justify-between items-center">
                       <h4 className="font-medium">Miércoles</h4>
-                      <span className="text-sm text-muted-foreground">Descanso</span>
+                      <span className="text-sm text-muted-foreground">
+                        Descanso
+                      </span>
                     </div>
-                    <div className="text-sm text-muted-foreground">15 de marzo</div>
+                    <div className="text-sm text-muted-foreground">
+                      15 de marzo
+                    </div>
                   </div>
                 </div>
 
@@ -285,9 +397,13 @@ export default function DashboardPage() {
                   <div className="flex-1">
                     <div className="flex justify-between items-center">
                       <h4 className="font-medium">Jueves</h4>
-                      <span className="text-sm text-muted-foreground">Hombros y brazos</span>
+                      <span className="text-sm text-muted-foreground">
+                        Hombros y brazos
+                      </span>
                     </div>
-                    <div className="text-sm text-muted-foreground">16 de marzo • 45 min</div>
+                    <div className="text-sm text-muted-foreground">
+                      16 de marzo • 45 min
+                    </div>
                   </div>
                 </div>
               </div>
@@ -297,7 +413,9 @@ export default function DashboardPage() {
           <Card>
             <CardHeader>
               <CardTitle>Estadísticas de salud</CardTitle>
-              <CardDescription>Métricas importantes para tu bienestar</CardDescription>
+              <CardDescription>
+                Métricas importantes para tu bienestar
+              </CardDescription>
             </CardHeader>
             <CardContent>
               <div className="space-y-4">
@@ -343,6 +461,5 @@ export default function DashboardPage() {
         </div>
       </div>
     </MainLayout>
-  )
+  );
 }
-
