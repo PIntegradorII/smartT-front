@@ -1,8 +1,10 @@
 import axios from "axios";
 
-// Crear una instancia de Axios con configuración base
+// Usar la variable de entorno para la base URL
+const API_URL = process.env.REACT_APP_API_URL || "https://smartt-back.onrender.com/v1/";
+
 const api = axios.create({
-  baseURL: "https://smartt-back.onrender.com/v1/",
+  baseURL: API_URL,
   headers: {
     "Content-Type": "application/json",
   },

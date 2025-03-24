@@ -54,7 +54,6 @@ export const getUserData = async (userId) => {
 //         throw new Error("No se pudo generar el plan de entrenamiento");
 //       }
   
-//     //   console.log("Plan de entrenamiento generado:", response.data);
 //       return response.data;
 //     } catch (error) {
 //       console.error("Error en createPlan:", error);
@@ -104,7 +103,6 @@ export const getUserData = async (userId) => {
             }
         );
 
-        console.log("Rutina actualizada:", response);
         return response.data;
     } catch (error) {
         console.error("Error al actualizar la rutina:", error.response?.data || error.message);
@@ -156,7 +154,6 @@ export const createPlan = async (userId) => {
       ...response.data, // Mantiene los días de la semana como están
     };
     
-    console.log("Datos enviados en POST:", trainingPlan);
 
     // Guardar el plan de entrenamiento en el backend
     const saveResponse = await api.post("/training/training-plan", trainingPlan);
@@ -165,7 +162,6 @@ export const createPlan = async (userId) => {
       throw new Error("No se pudo guardar el plan de entrenamiento");
     }
 
-    console.log("Plan de entrenamiento guardado:", saveResponse.data);
     return saveResponse.data;
   } catch (error) {
     console.error("Error en createPlan:", error);
