@@ -56,7 +56,7 @@ export default function DashboardPage() {
   useEffect(() => {
     const initializeLog = async () => {
       try {
-        const today = new Date().toLocaleDateString("en-CA");
+        const today = new Date().toLocaleDateString("en-CA", { timeZone: "America/Bogota" });
         // Obtén el ID del usuario
         const userData = localStorage.getItem("user")
           ? JSON.parse(localStorage.getItem("user") as string)
