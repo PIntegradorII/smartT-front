@@ -74,6 +74,8 @@ export default function DashboardPage() {
         setRoutine(fetchedRoutine);
 
         const user_log = await getDailyExerciseLog(fetchedId, today);
+
+        console.log("TODAY", today)
         setLog(user_log.completed);
       } catch (error) {
         console.error("Error initializing log:", error);
@@ -137,7 +139,7 @@ export default function DashboardPage() {
 
           <Card>
             <CardContent className="p-6 flex flex-col items-center justify-center text-center">
-              <div className="h-12 w-12 rounded-full gradient-orange-green flex items-center justify-center mb-3">
+              <div className="h-12 w-12 rounded-full gradient-purple flex items-center justify-center mb-3">
                 <Activity className="h-6 w-6 text-white" />
               </div>
               <div className="text-2xl font-bold">4 de 5</div>
@@ -159,7 +161,7 @@ export default function DashboardPage() {
 
           <Card>
             <CardContent className="p-6 flex flex-col items-center justify-center text-center">
-              <div className="h-12 w-12 rounded-full gradient-orange-green flex items-center justify-center mb-3">
+              <div className="h-12 w-12 rounded-full gradient-purple flex items-center justify-center mb-3">
                 <Trophy className="h-6 w-6 text-white" />
               </div>
               <div className="text-2xl font-bold">3</div>
