@@ -13,7 +13,7 @@ export function QuickAccess() {
   ]
 
   return (
-    <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-6 gap-4">
+    <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-3 gap-4">
       {quickLinks.map((link) => (
         <Link key={link.name} href={link.href}>
           <Card className="h-full hover:border-primary/50 transition-colors">
