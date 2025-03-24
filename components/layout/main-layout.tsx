@@ -27,11 +27,10 @@ export function MainLayout({ children }: MainLayoutProps) {
   const [userData, setUserData] = useState<{ name?: string } | null>(null)
 
   const getInitials = (name: string) => {
-    return name
-      .split(" ")
-      .map((word) => word[0])
-      .join("")
-      .toUpperCase();
+    const words = name.split(" ");
+    if (words.length < 2) return name.charAt(0).toUpperCase(); 
+  
+    return (words[0][0] + words[1][0]).toUpperCase();
   };
   
   useEffect(() => {
@@ -40,7 +39,6 @@ export function MainLayout({ children }: MainLayoutProps) {
       const userData = storedUser ? JSON.parse(storedUser) : null;
       if (userData?.name) {
         const initials = getInitials(userData.name);
-        console.log("Initials:", initials);
       }
     }
   }, []);
@@ -50,7 +48,6 @@ export function MainLayout({ children }: MainLayoutProps) {
         // Verificar que estamos en el navegador
         const storedUser = localStorage.getItem("user")
         setUserData(storedUser ? JSON.parse(storedUser) : null)
-        console.log("userData", storedUser)
       }
     }, [])
 

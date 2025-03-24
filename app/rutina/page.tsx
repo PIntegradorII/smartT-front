@@ -60,8 +60,7 @@ export default function RutinaPage() {
     }
   
     const selectedRoutine = data?.[dayMapping[activeDay]];
-    console.log("Regenerando rutina para el día", activeDay, "con rutina:", selectedRoutine);
-    console.log("ID del usuario:", fetchedId);
+
   
     setIsUpdating(true);
     
