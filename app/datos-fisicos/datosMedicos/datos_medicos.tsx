@@ -27,6 +27,7 @@ export interface HealthFormProps {
   onSubmit: () => void;
 }
 import { useRouter } from "next/navigation"; // Importa useRouter
+import { logExercise } from "@/services/logs_exercises/logs";
 const HealthForm: React.FC<HealthFormProps> = ({
   formData,
   setFormData,
@@ -83,7 +84,13 @@ const HealthForm: React.FC<HealthFormProps> = ({
         lesiones: formData.lesionesBool || "no",
         confirmacion: formData.confirmacion ? "si" : "no",
       };
-
+      const logData = {
+        user_id: userId,
+        date: new Date().toLocaleDateString('en-CA', { timeZone: 'America/Bogota' }), // Fecha actual en formato YYYY-MM-DD
+        completed: false, // Marcado como no completado por defecto
+      };
+      
+      await logExercise(logData);
 
       const response = await createHealthData(datosAEnviar);
       Cookies.set("ruta", "1", { expires: 1, path: "/" });
