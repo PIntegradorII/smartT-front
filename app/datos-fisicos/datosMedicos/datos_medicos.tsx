@@ -86,9 +86,10 @@ const HealthForm: React.FC<HealthFormProps> = ({
       };
       const logData = {
         user_id: userId,
-        date: new Date().toISOString().split("T")[0], // Fecha actual en formato YYYY-MM-DD
+        date: new Date().toLocaleDateString('en-CA', { timeZone: 'America/Bogota' }), // Fecha actual en formato YYYY-MM-DD
         completed: false, // Marcado como no completado por defecto
       };
+      
       await logExercise(logData);
 
       const response = await createHealthData(datosAEnviar);
