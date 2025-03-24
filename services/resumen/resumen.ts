@@ -5,7 +5,6 @@ export const getWeeklyExercises = async (googleId: string) => {
     const response = await api.post("/log_exercises/exercise/weekly/", {
       google_id: googleId,
     });
-
     return response.data;
   } catch (error) {
     console.error("❌ Error al obtener ejercicios semanales:", error);

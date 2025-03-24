@@ -4,7 +4,7 @@ import type React from "react"
 import { useEffect } from "react";
 import { useState } from "react"
 import { usePathname } from "next/navigation"
-import { signOutBackend } from "@/services/login/authService"; 
+import { signOutBackend } from "@/services/login/authService";
 import Link from "next/link"
 import { BarChart3, Home, Menu, User, Dumbbell, Calendar, Settings, LogOut, X, Sparkles } from "lucide-react"
 import { Button } from "@/components/ui/button"
@@ -28,11 +28,11 @@ export function MainLayout({ children }: MainLayoutProps) {
 
   const getInitials = (name: string) => {
     const words = name.split(" ");
-    if (words.length < 2) return name.charAt(0).toUpperCase(); 
-  
+    if (words.length < 2) return name.charAt(0).toUpperCase();
+
     return (words[0][0] + words[1][0]).toUpperCase();
   };
-  
+
   useEffect(() => {
     if (typeof window !== "undefined") {
       const storedUser = localStorage.getItem("user");
@@ -44,12 +44,12 @@ export function MainLayout({ children }: MainLayoutProps) {
   }, []);
 
   useEffect(() => {
-      if (typeof window !== "undefined") {
-        // Verificar que estamos en el navegador
-        const storedUser = localStorage.getItem("user")
-        setUserData(storedUser ? JSON.parse(storedUser) : null)
-      }
-    }, [])
+    if (typeof window !== "undefined") {
+      // Verificar que estamos en el navegador
+      const storedUser = localStorage.getItem("user")
+      setUserData(storedUser ? JSON.parse(storedUser) : null)
+    }
+  }, [])
 
   const navigation = [
     { name: "Inicio", href: "/dashboard", icon: Home },
@@ -173,7 +173,7 @@ export function MainLayout({ children }: MainLayoutProps) {
               </Link>
             ))}
           </nav>
-          <div className="mt-auto">
+          <div className="" style={{ marginTop: "40px" }}>
             <Button variant="outline" className="w-full justify-start gap-2" onClick={handleLogout}>
               <LogOut className="h-4 w-4" />
               Cerrar sesión

@@ -52,7 +52,7 @@ export default function DashboardPage() {
   }
 
   const userName = userData?.name ? formatName(userData.name) : "Usuario"
-  
+
   useEffect(() => {
     const initializeLog = async () => {
       try {
@@ -72,6 +72,7 @@ export default function DashboardPage() {
         };
         const fetchedRoutine = await getDailyPlan(fetchedId);
         setRoutine(fetchedRoutine);
+
         const user_log = await getDailyExerciseLog(fetchedId, today);
         setLog(user_log.completed);
       } catch (error) {
@@ -104,13 +105,13 @@ export default function DashboardPage() {
       setIsLoading(false);
     }
   };
-//datos
+  //datos
   return (
     <MainLayout>
       <div className="flex flex-col gap-6">
         <div className="flex flex-col gap-2">
           <h1 className="text-3xl font-bold tracking-tight">
-          ¡Bienvenido, {userName}!
+            ¡Bienvenido, {userName}!
           </h1>
 
           <p className="text-muted-foreground">
@@ -184,7 +185,7 @@ export default function DashboardPage() {
             )}
           </CardHeader>
           {log ? (
-              <div className="flex flex-col items-center gap-4 mt-4 mb-4">
+            <div className="flex flex-col items-center gap-4 mt-4 mb-4">
               <CheckCircle className="h-16 w-16 text-green-600" />
               <h2 className="text-xl font-bold text-center">
                 Rutina de hoy terminada
@@ -193,28 +194,29 @@ export default function DashboardPage() {
           ) : (
             <>
               <div>
-              <CardContent>
-            {routine ? (
-              routine.routine.ejercicios.map((exercise, index) => (
-                <Card key={index} className="mb-4">
-                  <CardContent className="flex items-center gap-4">
-                    <div className="h-16 w-16 rounded-lg bg-muted flex items-center justify-center">
-                      <Dumbbell className="h-8 w-8 text-primary" />
-                    </div>
-                    <div className="flex-1">
-                      <h4 className="font-medium">{exercise.ejercicio}</h4>
-                      <p className="text-sm text-muted-foreground">
-                        {exercise.series} series • {exercise.repeticiones}
-                      </p>
-                      <Progress value={0} className="h-2" />
-                    </div>
-                  </CardContent>
-                </Card>
-              ))
-            ) : (
-              <p>No hay rutinas por mostrar</p>
-            )}
-          </CardContent>
+                <CardContent>
+                  {routine && routine.routine && Array.isArray(routine.routine.ejercicios) ? (
+                    routine.routine.ejercicios.map((exercise, index) => (
+                      <Card key={index} className="mb-4">
+                        <CardContent className="flex items-center gap-4">
+                          <div className="h-16 w-16 rounded-lg bg-muted flex items-center justify-center">
+                            <Dumbbell className="h-8 w-8 text-primary" />
+                          </div>
+                          <div className="flex-1">
+                            <h4 className="font-medium">{exercise.ejercicio}</h4>
+                            <p className="text-sm text-muted-foreground">
+                              {exercise.series} series • {exercise.repeticiones}
+                            </p>
+                            <Progress value={0} className="h-2" />
+                          </div>
+                        </CardContent>
+                      </Card>
+                    ))
+                  ) : (
+                    <p>No hay rutinas por mostrar</p>
+                  )}
+
+                </CardContent>
               </div>
             </>
           )}
@@ -224,8 +226,8 @@ export default function DashboardPage() {
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
           <Card>
             <CardHeader>
-            <CardTitle>{routine?.day || "Día no disponible"}</CardTitle>
-            <CardDescription>{routine?.routine?.titulo || "Sin rutina"}</CardDescription>
+              <CardTitle>{routine?.day || "Día no disponible"}</CardTitle>
+              <CardDescription>{routine?.routine?.titulo || "Sin rutina"}</CardDescription>
             </CardHeader>
             <CardContent>
               <div className="space-y-4">
