@@ -15,14 +15,19 @@ export const getUserData = async (userId) => {
     const personalResponse = await api.get(`/personal_data/personal_data/user/${userId}`);
     const personalData = personalResponse.data;
 
+    // Obtener datos físicos
+    const physicalResponse = await api.get(`/physical/physical_data/user/${userId}`);
+    const physicalData = physicalResponse.data;  
+
+
     // Estructurar la respuesta final
     return {
       nombre: user.name,
-      peso: 60,
-      altura: 1.6,
+      peso: physicalData.peso,
+      altura: physicalData.altura,
       sexo: personalData.genero,
       condiciones_medicas : healthData.tiene_condiciones === "si" ? [healthData.detalles_condiciones, healthData.lesiones] : ["Ninguna"],
-      meta_entrenamiento: "Perder peso",
+      meta_entrenamiento: physicalData.objetivo,
     };
   } catch (error) {
     console.error("Error al obtener los datos del usuario:", error);
@@ -104,6 +109,31 @@ export const getUserData = async (userId) => {
     } catch (error) {
         console.error("Error al actualizar la rutina:", error.response?.data || error.message);
     }
+};
+// services/exercises/exerciseApi.js
+
+export const getExerciseGif = async (name) => {
+  const url = `https://exercisedb.p.rapidapi.com/exercises/name/${encodeURIComponent(name)}?offset=0&limit=1`;
+
+  try {
+    const response = await fetch(url, {
+      method: "GET",
+      headers: {
+        "x-rapidapi-key": "52ff245a5bmsh8b115c1a1d680a8p17d983jsnc796ce1750a5",
+        "x-rapidapi-host": "exercisedb.p.rapidapi.com",
+      },
+    });
+
+    if (!response.ok) {
+      throw new Error("No se pudo obtener el GIF del ejercicio");
+    }
+
+    const data = await response.json();
+    return data[0]?.gifUrl || null;
+  } catch (error) {
+    console.error("Error obteniendo el GIF:", error);
+    return null;
+  }
 };
 
   
