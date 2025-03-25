@@ -6,6 +6,7 @@ import Image from "next/image";
 import { getTrainingPlanByGoogleId } from "@/services/training/rutinas";
 import { regenerateRoutineDay } from "@/services/training/trainingService";
 import { getID } from "../../services/login/authService";
+import { GIFS_EJERCICIOS } from "@/app/rutina/ejercicios";
 
 export default function RutinaPage() {
   const [activeDay, setActiveDay] = useState<keyof typeof dayMapping>("lunes");
@@ -17,49 +18,6 @@ export default function RutinaPage() {
 
   const defaultImage = "/images/default-exercise.jpg"; // Imagen por defecto
 
-  const imageMapping: Record<string, string> = {
-    "sentadillas": "/images/sentadillas.jpg",
-    "flexiones de pecho": "/images/flexiones.jpg",
-    "prensa de piernas": "/images/prensa-piernas.jpg",
-    "remo con mancuernas": "/images/remo-mancuernas.jpg",
-    "crunches": "/images/crunches.jpg",
-    "lunges": "/images/lunges.jpg",
-    "planchas": "/images/planchas.jpg",
-    "elevaciones de piernas": "/images/elevaciones-piernas.jpg",
-    "prensa militar con mancuernas": "/images/prensa-militar.jpg",
-  };
-  const GIFS_EJERCICIOS: Record<string, string> = {
-      "3/4 sit-up": "https://v2.exercisedb.io/image/IIWxjNI6uAOhIl",
-      "air bike": "https://v2.exercisedb.io/image/63BlgL0TaYiwgh",
-      "barbell press sit-up": "https://v2.exercisedb.io/image/3upykc5OQ9sBdU",
-      "assisted pull-up": "https://v2.exercisedb.io/image/fiKAtidjNB0Ev5",
-      "barbell pullover": "https://v2.exercisedb.io/image/7lNkToBp4Xw5Sd",
-      "cable bar lateral pulldown": "https://v2.exercisedb.io/image/CJyamyZT99aGau",
-      "barbell bench press": "https://v2.exercisedb.io/image/Yj25FNrrJQg5yk",
-      "cable cross-over variation": "https://v2.exercisedb.io/image/jXnmajz3mBRxoT",
-      "barbell incline bench press": "https://v2.exercisedb.io/image/6LNwbNh-YHVbet",
-      "barbell straight leg deadlift": "https://v2.exercisedb.io/image/AdG49qT-wUslQM",
-      "dumbbell lying femoral": "https://v2.exercisedb.io/image/MdKErTLlSBs-WC",
-      "lever lying leg curl": "https://v2.exercisedb.io/image/lhmUhZ4zE6Aazn",
-      "barbell close-grip bench press": "https://v2.exercisedb.io/image/KkqTVNzJm3ZQCa",
-      "barbell lying triceps extension skull crusher": "https://v2.exercisedb.io/image/x6u3CNCL59tUzE",
-      "assisted triceps dip (kneeling)": "https://v2.exercisedb.io/image/0qxkrz-Xm0amYs",
-      "barbell squat (on knees)": "https://v2.exercisedb.io/image/XtOPJHxYHJdItl",
-      "barbell bench squat": "https://v2.exercisedb.io/image/ceJw3gkOntWmIO",
-      "barbell overhead squat": "https://v2.exercisedb.io/image/sJUd2gLwTHkoJW",
-      "barbell curl": "https://v2.exercisedb.io/image/2Fyi0a4liGM8H-",
-      "barbell preacher curl": "https://v2.exercisedb.io/image/ZUzfazdXPhWboC",
-      "barbell drag curl": "https://v2.exercisedb.io/image/6-QbomQ9IURN-8",
-      "barbell bent over row": "https://v2.exercisedb.io/image/orHk7f6Ypkn33V",
-      "cable low seated row": "https://v2.exercisedb.io/image/QO0Bab0kGTCWJi",
-      "cable high row (kneeling)": "https://v2.exercisedb.io/image/S5JOaED-b4DtD0",
-      "barbell deadlift": "https://v2.exercisedb.io/image/YFntZGETpQ46nx",
-      "barbell front squat": "https://v2.exercisedb.io/image/zw5ieI4omGvFvL",
-      "barbell lunge": "https://v2.exercisedb.io/image/Ivl4IUKvru0QOO",
-      "barbell front raise": "https://v2.exercisedb.io/image/HPXK4wtnXoMswS",
-      "barbell rear delt raise": "https://v2.exercisedb.io/image/e1Gzr3qYpJ4dL2",
-      "barbell seated overhead press": "https://v2.exercisedb.io/image/gwxXHL555p2WHw"
-  }
   
   const loadData = async () => {
     setIsLoading(true);
