@@ -25,6 +25,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import PersonalDataForm from "./datosPersonales/datos_personales";
+import DatosFisicosForm from "./datosFisicos/datos_fisicos";
 
 export default function DatosFisicosPage() {
   const [step, setStep] = useState(1);
@@ -102,101 +103,11 @@ export default function DatosFisicosPage() {
          onSubmit={handleSubmitPersonalData} />
         )}
         {step === 2 && (
-          <Card className="w-full shadow-lg">
-            <CardHeader>
-              <CardTitle>Objetivos de entrenamiento</CardTitle>
-              <CardDescription>
-                Selecciona tus objetivos para personalizar tu rutina
-              </CardDescription>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <div className="space-y-2">
-                <Label htmlFor="objetivo-principal">Objetivo principal</Label>
-                <Select>
-                  <SelectTrigger id="objetivo-principal">
-                    <SelectValue placeholder="Selecciona tu objetivo" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="perder-peso">Perder peso</SelectItem>
-                    <SelectItem value="ganar-musculo">
-                      Ganar masa muscular
-                    </SelectItem>
-                    <SelectItem value="tonificar">
-                      Tonificar el cuerpo
-                    </SelectItem>
-                    <SelectItem value="resistencia">
-                      Mejorar resistencia
-                    </SelectItem>
-                    <SelectItem value="fuerza">Aumentar fuerza</SelectItem>
-                    <SelectItem value="flexibilidad">
-                      Mejorar flexibilidad
-                    </SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
-
-              <div className="space-y-2">
-                <Label htmlFor="frecuencia">
-                  Frecuencia de entrenamiento semanal
-                </Label>
-                <Select>
-                  <SelectTrigger id="frecuencia">
-                    <SelectValue placeholder="Selecciona la frecuencia" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="2">2 días por semana</SelectItem>
-                    <SelectItem value="3">3 días por semana</SelectItem>
-                    <SelectItem value="4">4 días por semana</SelectItem>
-                    <SelectItem value="5">5 días por semana</SelectItem>
-                    <SelectItem value="6">6 días por semana</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
-
-              <div className="space-y-2">
-                <Label htmlFor="duracion">
-                  Duración preferida de entrenamiento
-                </Label>
-                <Select>
-                  <SelectTrigger id="duracion">
-                    <SelectValue placeholder="Selecciona la duración" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="30">30 minutos</SelectItem>
-                    <SelectItem value="45">45 minutos</SelectItem>
-                    <SelectItem value="60">60 minutos</SelectItem>
-                    <SelectItem value="90">90 minutos</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
-
-              <div className="space-y-2">
-                <Label htmlFor="equipamiento">Equipamiento disponible</Label>
-                <Select>
-                  <SelectTrigger id="equipamiento">
-                    <SelectValue placeholder="Selecciona el equipamiento" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="ninguno">
-                      Sin equipamiento (en casa)
-                    </SelectItem>
-                    <SelectItem value="basico">
-                      Equipamiento básico (mancuernas, bandas)
-                    </SelectItem>
-                    <SelectItem value="gimnasio">
-                      Acceso a gimnasio completo
-                    </SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
-            </CardContent>
-            <CardFooter className="flex justify-between">
-              <Button variant="outline" onClick={() => setStep(1)}>
-                Atrás
-              </Button>
-              <Button onClick={() => setStep(3)}>Continuar</Button>
-            </CardFooter>
-          </Card>
+          <DatosFisicosForm
+            formData={formData}
+            setFormData={setFormData}
+            onSubmit={() => setStep(3)}
+          />
         )}
         {step === 3 && (
           <HealthForm

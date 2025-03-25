@@ -12,11 +12,14 @@ import { Dumbbell, Loader2, Sparkles, Zap } from "lucide-react"
 import Link from "next/link"
 import { getID } from "@/services/login/authService";
 import { createPlan } from "@/services/training/trainingService";
+import { useRouter } from "next/navigation";
+
 
 export default function GenerarRutinaPage() {
   const [generating, setGenerating] = useState(false)
   const [routineGenerated, setRoutineGenerated] = useState(false)
-
+  const router = useRouter();
+  
   const handleGenerateRoutine = async () => {
     setGenerating(true);
   
@@ -39,7 +42,7 @@ export default function GenerarRutinaPage() {
       setTimeout(() => {
         setGenerating(false);
         setRoutineGenerated(true);
-        // window.location.href = "http://localhost:3000/rutina";
+        router.push("/rutina");
       }, 3000);
     }
   };  

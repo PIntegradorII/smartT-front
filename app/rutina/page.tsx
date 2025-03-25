@@ -6,6 +6,7 @@ import Image from "next/image";
 import { getTrainingPlanByGoogleId } from "@/services/training/rutinas";
 import { regenerateRoutineDay } from "@/services/training/trainingService";
 import { getID } from "../../services/login/authService";
+import { GIFS_EJERCICIOS } from "@/app/rutina/ejercicios";
 
 export default function RutinaPage() {
   const [activeDay, setActiveDay] = useState<keyof typeof dayMapping>("lunes");
@@ -17,18 +18,7 @@ export default function RutinaPage() {
 
   const defaultImage = "/images/default-exercise.jpg"; // Imagen por defecto
 
-  const imageMapping: Record<string, string> = {
-    "sentadillas": "/images/sentadillas.jpg",
-    "flexiones de pecho": "/images/flexiones.jpg",
-    "prensa de piernas": "/images/prensa-piernas.jpg",
-    "remo con mancuernas": "/images/remo-mancuernas.jpg",
-    "crunches": "/images/crunches.jpg",
-    "lunges": "/images/lunges.jpg",
-    "planchas": "/images/planchas.jpg",
-    "elevaciones de piernas": "/images/elevaciones-piernas.jpg",
-    "prensa militar con mancuernas": "/images/prensa-militar.jpg",
-  };
-
+  
   const loadData = async () => {
     setIsLoading(true);
     setErrorMessage(null);
@@ -163,13 +153,15 @@ export default function RutinaPage() {
                 repeticiones: string; 
                 imagen?: string; 
               }, index: Key | null | undefined) => {
-                const imgSrc = ejercicio.imagen || imageMapping[ejercicio.ejercicio.toLowerCase()] || defaultImage;
+                // Determinar imagen: usar la proporcionada o una del mapping o la default
+
+
                 
                 return (
                   <div key={index} className="border rounded-lg overflow-hidden bg-white p-4 flex flex-col items-center">
                     <h3 className="text-lg font-semibold text-center mb-1">{ejercicio.ejercicio}</h3>
                     <Image 
-                      src={imgSrc} 
+                      src={GIFS_EJERCICIOS[ejercicio.ejercicio] || defaultImage} 
                       alt={`Imagen de ${ejercicio.ejercicio}`} 
                       width={150} 
                       height={150} 
