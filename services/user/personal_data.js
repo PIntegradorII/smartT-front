@@ -8,7 +8,7 @@ export const createPersonalData = async (data) => {
 
 // Obtener un registro por ID
 export const getPersonalDataById = async (id) => {
-  const response = await api.get(`/personal_data/${id}`);
+  const response = await api.get(`/personal_data/personal_data/user/${id}`);
   return response.data;
 };
 
@@ -20,7 +20,7 @@ export const getAllPersonalData = async () => {
 
 // Actualizar un registro por ID
 export const updatePersonalData = async (id, data) => {
-  const response = await api.put(`/update/${id}`, data);
+  const response = await api.put(`/personal_data/update/${id}`, data);
   return response.data;
 };
 
