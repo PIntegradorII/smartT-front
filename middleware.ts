@@ -40,7 +40,7 @@ export function middleware(req: NextRequest) {
     "/generar-rutina",
     "/perfil",
     "/admin",
-    "/configuracion",
+    "/nutricion",
   ];
 
   // 🚫 Usuarios con ruta = 1 solo pueden acceder a estas rutas
