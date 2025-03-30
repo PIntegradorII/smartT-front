@@ -135,6 +135,7 @@ export default function PerfilPage() {
           objetivo: physical.objetivo,
           imc: physical.imc,
         }));
+        setSelectedObjective(physical.objetivo);
       } catch (error) {
         console.error("Error al recuperar los datos del usuario:", error);
       }
@@ -274,7 +275,7 @@ export default function PerfilPage() {
                       <Input
                         id="nombre"
                         defaultValue={userData?.name || ""}
-                        disabled={!editing}
+                        disabled
                       />
                     </div>
                   </div>
@@ -285,7 +286,7 @@ export default function PerfilPage() {
                       id="email"
                       type="email"
                       defaultValue={userData?.email || ""}
-                      disabled={!editing}
+                      disabled
                     />
                   </div>
 
