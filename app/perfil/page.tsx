@@ -27,6 +27,10 @@ import {
   getPersonalDataById,
   updatePersonalData,
 } from "@/services/user/personal_data";
+import {
+  getPhysicalDataById,
+  updatePhysicalData,
+} from "@/services/user/physical_data";
 
 export default function PerfilPage() {
   interface UserData {
@@ -38,11 +42,23 @@ export default function PerfilPage() {
     edad?: number;
     genero?: string;
   }
-
+  interface PhysicalData {
+    id?: number;
+    altura?: number;
+    brazos?: number;
+    cintura?: number;
+    imc?: number;
+    objetivo?: number;
+    pecho?: number;
+    peso?: number;
+    piernas?: number;
+  }
   const [userData, setUserData] = useState<UserData | null>(null);
   const [userID, setUserID] = useState<number | null>(null);
   const [editing, setEditing] = useState(false);
-  
+  const [physicalData, setPhysicalData] = useState<any | null>(null);
+  const [editingDatosFisicos, setEditingDatosFisicos] = useState(false);
+  const [selectedObjective, setSelectedObjective] = useState(physicalData?.objetivo || "");
 
   async function handleSaveChanges(
     userData: UserData | null,
@@ -94,13 +110,30 @@ export default function PerfilPage() {
         setUserID(fetchedId);
         console.log("ID del usuario", fetchedId);
 
+        // get personal data
         const personalData = await getPersonalDataById(fetchedId);
         console.log("Datos personales:", personalData);
+
+        // get physical data
+        const physical = await getPhysicalDataById(fetchedId);
+        console.log("Datos físicos:", physical);
 
         setUserData((prevData) => ({
           ...prevData,
           edad: personalData.edad,
           genero: personalData.genero,
+        }));
+
+        setPhysicalData((prevData: PhysicalData | null) => ({
+          ...prevData,
+          peso: physical.peso,
+          altura: physical.altura,
+          cintura: physical.cintura,
+          pecho: physical.pecho,
+          brazos: physical.brazos,
+          piernas: physical.piernas,
+          objetivo: physical.objetivo,
+          imc: physical.imc,
         }));
       } catch (error) {
         console.error("Error al recuperar los datos del usuario:", error);
@@ -109,6 +142,71 @@ export default function PerfilPage() {
 
     fetchUserData();
   }, []);
+  const handleSavePhysicalData = async () => {
+    try {
+      // Obtener valores de los inputs
+      const peso = parseFloat(
+        (document.getElementById("peso") as HTMLInputElement)?.value || "0"
+      );
+      const altura = parseFloat(
+        (document.getElementById("altura") as HTMLInputElement)?.value || "0"
+      );
+      const cintura = parseFloat(
+        (document.getElementById("cintura") as HTMLInputElement)?.value || "0"
+      );
+      const pecho = parseFloat(
+        (document.getElementById("pecho") as HTMLInputElement)?.value || "0"
+      );
+      const brazos = parseFloat(
+        (document.getElementById("brazos") as HTMLInputElement)?.value || "0"
+      );
+      const piernas = parseFloat(
+        (document.getElementById("piernas") as HTMLInputElement)?.value || "0"
+      );
+      const objetivo =
+        (document.querySelector("#objetivo select") as HTMLSelectElement)
+          ?.value || "";
+
+      // Calcular IMC
+      const imc =
+        altura > 0 ? parseFloat((peso / (altura / 100) ** 2).toFixed(2)) : 0;
+
+      const updatedData = {
+        user_id: userID, // Incluye el userID en los datos enviados
+        peso,
+        altura,
+        cintura,
+        pecho,
+        brazos,
+        piernas,
+        objetivo: selectedObjective,
+        imc, // IMC calculado correctamente
+      };
+
+      console.log("Datos físicos actualizados correctamente:", updatedData);
+
+      // Validar datos si es necesario (opcional)
+      if (!peso || !altura) {
+        throw new Error("Los campos 'peso' y 'altura' son obligatorios.");
+      }
+
+      // Actualizar el estado local
+      setPhysicalData((prev: typeof physicalData) => ({
+        ...prev,
+        ...updatedData,
+      }));
+
+      // Llamar al API o función de actualización
+      await updatePhysicalData(userID, updatedData);
+
+      // Mostrar mensaje de éxito
+      setEditingDatosFisicos(false);
+      console.log("Datos físicos actualizados correctamente:", updatedData);
+    } catch (error) {
+      // Manejo de errores
+      console.error("Error al actualizar datos físicos:", error);
+    }
+  };
 
   return (
     <MainLayout>
@@ -243,6 +341,135 @@ export default function PerfilPage() {
                 </CardFooter>
               </Card>
             </div>
+          </TabsContent>
+          <TabsContent value="datos_fisicos">
+            <Card className="md:col-span-3">
+              <CardHeader className="flex flex-row items-center justify-between">
+                <div>
+                  <CardTitle>Datos físicos y objetivos</CardTitle>
+                  <CardDescription>
+                    Actualiza tus medidas y objetivos de entrenamiento
+                  </CardDescription>
+                </div>
+                <Button
+                  variant="outline"
+                  size="icon"
+                  onClick={() => setEditingDatosFisicos(!editingDatosFisicos)}
+                >
+                  <Edit className="h-4 w-4" />
+                </Button>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+                  <div className="space-y-2">
+                    <Label htmlFor="peso">Peso (kg)</Label>
+                    <Input
+                      id="peso"
+                      type="number"
+                      defaultValue={physicalData?.peso || ""}
+                      disabled={!editingDatosFisicos}
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="altura">Altura (cm)</Label>
+                    <Input
+                      id="altura"
+                      type="number"
+                      defaultValue={physicalData?.altura || ""}
+                      disabled={!editingDatosFisicos}
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="imc">IMC</Label>
+                    <Input
+                      id="imc"
+                      type="number"
+                      value={(
+                        ((physicalData?.peso || 0) /
+                          (physicalData?.altura || 1) ** 2) *
+                        10000
+                      ).toFixed(2)}
+                      disabled={true}
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="cintura">Cintura (cm)</Label>
+                    <Input
+                      id="cintura"
+                      type="number"
+                      defaultValue={physicalData?.cintura || ""}
+                      disabled={!editingDatosFisicos}
+                    />
+                  </div>
+                </div>
+                <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+                  <div className="space-y-2">
+                    <Label htmlFor="pecho">Pecho (cm)</Label>
+                    <Input
+                      id="pecho"
+                      type="number"
+                      defaultValue={physicalData?.pecho || ""}
+                      disabled={!editingDatosFisicos}
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="brazos">Brazos (cm)</Label>
+                    <Input
+                      id="brazos"
+                      type="number"
+                      defaultValue={physicalData?.brazos || ""}
+                      disabled={!editingDatosFisicos}
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="piernas">Piernas (cm)</Label>
+                    <Input
+                      id="piernas"
+                      type="number"
+                      defaultValue={physicalData?.piernas || ""}
+                      disabled={!editingDatosFisicos}
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="objetivo">Objetivo</Label>
+                    <Select
+                      value={selectedObjective}
+                      onValueChange={(value) => setSelectedObjective(value)}
+                      disabled={!editingDatosFisicos}
+                    >
+                      <SelectTrigger id="objetivo">
+                        <SelectValue placeholder="Selecciona tu objetivo" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="perder_grasa">
+                          Pérdida de grasa
+                        </SelectItem>
+                        <SelectItem value="hipertrofia">Hipertrofia</SelectItem>
+                        <SelectItem value="resistencia">Resistencia</SelectItem>
+                        <SelectItem value="salud_general">
+                          Salud general
+                        </SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+                </div>
+              </CardContent>
+              <CardFooter
+                className={
+                  editingDatosFisicos ? "flex justify-end gap-2" : "hidden"
+                }
+              >
+                <Button
+                  variant="outline"
+                  onClick={() => setEditingDatosFisicos(false)}
+                >
+                  Cancelar
+                </Button>
+                <Button onClick={handleSavePhysicalData}>
+                  Guardar cambios
+                </Button>
+              </CardFooter>
+            </Card>
           </TabsContent>
         </Tabs>
       </div>

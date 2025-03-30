@@ -8,7 +8,7 @@ export const createPhysicalData = async (data) => {
 
 // Obtener un registro por ID
 export const getPhysicalDataById = async (id) => {
-  const response = await api.get(`/physical/${id}`);
+  const response = await api.get(`/physical/physical_data/${id}`);
   return response.data;
 };
 
