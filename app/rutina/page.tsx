@@ -136,14 +136,12 @@ export default function RutinaPage({ datosHistoricos, mostrarDetalles = false }:
           "Regenerar rutina del día"
         )}
       </button>)}
-
-
       {/* Manejo de errores */}
       {errorMessage ? (
         <p className="text-red-500">{errorMessage}</p>
       ) : isLoading ? (
         <p>Cargando rutina...</p>
-         
+
       ) : selectedDay ? (
         <div className="border rounded-lg p-4 bg-white">
           <h2 className="text-xl font-bold">{selectedDay.titulo}</h2>
