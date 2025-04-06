@@ -56,10 +56,9 @@ const PersonalDataForm: React.FC<HealthFormProps> = ({
         console.error("Error al recuperar el ID del usuario:", error);
       }
     };
-  
+
     fetchUserId();
   }, []);
-  
 
   const handleInputChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
@@ -76,7 +75,6 @@ const PersonalDataForm: React.FC<HealthFormProps> = ({
       if (!userId) {
         throw new Error("No se encontró el ID del usuario");
       }
-      
 
       const datosAEnviar = {
         id: 1,
@@ -95,7 +93,6 @@ const PersonalDataForm: React.FC<HealthFormProps> = ({
       console.error("Error al enviar los datos personales:", error);
     }
   };
-
 
   return (
     <Card className="w-full shadow-lg">
@@ -140,10 +137,9 @@ const PersonalDataForm: React.FC<HealthFormProps> = ({
         </div>
       </CardContent>
       <CardFooter>
-      <Button className="w-full" onClick={handleSubmitPersonalData}>
-  Continuar
-</Button>
-
+        <Button className="w-full" onClick={handleSubmitPersonalData}>
+          Continuar
+        </Button>
       </CardFooter>
     </Card>
   );
