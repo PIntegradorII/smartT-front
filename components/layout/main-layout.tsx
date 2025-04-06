@@ -59,6 +59,7 @@ export function MainLayout({ children }: MainLayoutProps) {
     { name: "Generar Rutina", href: "/generar-rutina", icon: Sparkles },
     { name: "Perfil", href: "/perfil", icon: User },
     { name: "Receta", href: "/receta", icon: Utensils },
+   { name: "Nutrición", href: "/nutricion", icon: Settings },
     // { name: "Configuración", href: "/configuracion", icon: Settings },
   ]
 

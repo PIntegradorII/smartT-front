@@ -1,33 +1,228 @@
-"use client"
-
-import { useState } from "react"
-import { MainLayout } from "@/components/layout/main-layout"
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
-import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
-import { Badge } from "@/components/ui/badge"
-import { Bell, Camera, Edit, Lock, User } from "lucide-react"
+"use client";
+import { useEffect, useState } from "react";
+import { MainLayout } from "@/components/layout/main-layout";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardFooter,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Edit } from "lucide-react";
+import { getID } from "@/services/login/authService";
+import {
+  getPersonalDataById,
+  updatePersonalData,
+} from "@/services/user/personal_data";
+import {
+  getPhysicalDataById,
+  updatePhysicalData,
+} from "@/services/user/physical_data";
 
 export default function PerfilPage() {
-  const [editing, setEditing] = useState(false)
+  interface UserData {
+    id?: number;
+    google_id?: string;
+    avatar?: string;
+    name?: string;
+    email?: string;
+    edad?: number;
+    genero?: string;
+  }
+  interface PhysicalData {
+    id?: number;
+    altura?: number;
+    brazos?: number;
+    cintura?: number;
+    imc?: number;
+    objetivo?: number;
+    pecho?: number;
+    peso?: number;
+    piernas?: number;
+  }
+  const [userData, setUserData] = useState<UserData | null>(null);
+  const [userID, setUserID] = useState<number | null>(null);
+  const [editing, setEditing] = useState(false);
+  const [physicalData, setPhysicalData] = useState<any | null>(null);
+  const [editingDatosFisicos, setEditingDatosFisicos] = useState(false);
+  const [selectedObjective, setSelectedObjective] = useState(physicalData?.objetivo || "");
+
+  async function handleSaveChanges(
+    userData: UserData | null,
+    setUserData: React.Dispatch<React.SetStateAction<UserData | null>>,
+    setEditing: React.Dispatch<React.SetStateAction<boolean>>
+  ) {
+    try {
+      const updatedData = {
+        user_id: userID,
+        name: (document.getElementById("nombre") as HTMLInputElement)?.value,
+        edad: parseInt(
+          (document.getElementById("edad") as HTMLInputElement)?.value || "0"
+        ),
+        genero: userData?.genero,
+      };
+
+      console.log("Datos actualizados:", updatedData);
+
+      if (userData?.id) {
+        await updatePersonalData(userID, updatedData);
+        console.log("Datos actualizados en el backend:", updatedData);
+        // Actualizar el estado local
+        setUserData((prev) => ({
+          ...prev,
+          ...updatedData,
+        }));
+        setEditing(false);
+
+        console.log("Datos actualizados correctamente");
+      } else {
+        console.error("ID del usuario no disponible");
+      }
+    } catch (error) {
+      console.error("Error al actualizar los datos personales:", error);
+    } finally {
+      // Cerrar modo de edición
+      setEditing(false);
+    }
+  }
+
+  useEffect(() => {
+    const fetchUserData = async () => {
+      try {
+        const storedUser = localStorage.getItem("user");
+        const parsedUser = storedUser ? JSON.parse(storedUser) : null;
+        setUserData(parsedUser);
+
+        const fetchedId = await getID(parsedUser.id);
+        setUserID(fetchedId);
+        console.log("ID del usuario", fetchedId);
+
+        // get personal data
+        const personalData = await getPersonalDataById(fetchedId);
+        console.log("Datos personales:", personalData);
+
+        // get physical data
+        const physical = await getPhysicalDataById(fetchedId);
+        console.log("Datos físicos:", physical);
+
+        setUserData((prevData) => ({
+          ...prevData,
+          edad: personalData.edad,
+          genero: personalData.genero,
+        }));
+
+        setPhysicalData((prevData: PhysicalData | null) => ({
+          ...prevData,
+          peso: physical.peso,
+          altura: physical.altura,
+          cintura: physical.cintura,
+          pecho: physical.pecho,
+          brazos: physical.brazos,
+          piernas: physical.piernas,
+          objetivo: physical.objetivo,
+          imc: physical.imc,
+        }));
+        setSelectedObjective(physical.objetivo);
+      } catch (error) {
+        console.error("Error al recuperar los datos del usuario:", error);
+      }
+    };
+
+    fetchUserData();
+  }, []);
+  const handleSavePhysicalData = async () => {
+    try {
+      // Obtener valores de los inputs
+      const peso = parseFloat(
+        (document.getElementById("peso") as HTMLInputElement)?.value || "0"
+      );
+      const altura = parseFloat(
+        (document.getElementById("altura") as HTMLInputElement)?.value || "0"
+      );
+      const cintura = parseFloat(
+        (document.getElementById("cintura") as HTMLInputElement)?.value || "0"
+      );
+      const pecho = parseFloat(
+        (document.getElementById("pecho") as HTMLInputElement)?.value || "0"
+      );
+      const brazos = parseFloat(
+        (document.getElementById("brazos") as HTMLInputElement)?.value || "0"
+      );
+      const piernas = parseFloat(
+        (document.getElementById("piernas") as HTMLInputElement)?.value || "0"
+      );
+      const objetivo =
+        (document.querySelector("#objetivo select") as HTMLSelectElement)
+          ?.value || "";
+
+      // Calcular IMC
+      const imc =
+        altura > 0 ? parseFloat((peso / (altura / 100) ** 2).toFixed(2)) : 0;
+
+      const updatedData = {
+        user_id: userID, // Incluye el userID en los datos enviados
+        peso,
+        altura,
+        cintura,
+        pecho,
+        brazos,
+        piernas,
+        objetivo: selectedObjective,
+        imc, // IMC calculado correctamente
+      };
+
+      console.log("Datos físicos actualizados correctamente:", updatedData);
+
+      // Validar datos si es necesario (opcional)
+      if (!peso || !altura) {
+        throw new Error("Los campos 'peso' y 'altura' son obligatorios.");
+      }
+
+      // Actualizar el estado local
+      setPhysicalData((prev: typeof physicalData) => ({
+        ...prev,
+        ...updatedData,
+      }));
+
+      // Llamar al API o función de actualización
+      await updatePhysicalData(userID, updatedData);
+
+      // Mostrar mensaje de éxito
+      setEditingDatosFisicos(false);
+      console.log("Datos físicos actualizados correctamente:", updatedData);
+    } catch (error) {
+      // Manejo de errores
+      console.error("Error al actualizar datos físicos:", error);
+    }
+  };
 
   return (
     <MainLayout>
       <div className="flex flex-col gap-6">
         <div className="flex flex-col gap-2">
           <h1 className="text-3xl font-bold tracking-tight">Tu perfil</h1>
-          <p className="text-muted-foreground">Gestiona tu información personal y preferencias.</p>
+          <p className="text-muted-foreground">
+            Gestiona tu información personal y preferencias.
+          </p>
         </div>
 
         <Tabs defaultValue="personal" className="w-full">
           <TabsList className="mb-6">
             <TabsTrigger value="personal">Información personal</TabsTrigger>
-            <TabsTrigger value="cuenta">Cuenta</TabsTrigger>
-            <TabsTrigger value="notificaciones">Notificaciones</TabsTrigger>
+            <TabsTrigger value="datos_fisicos">Datos físicos</TabsTrigger>
           </TabsList>
 
           <TabsContent value="personal">
@@ -36,20 +231,24 @@ export default function PerfilPage() {
                 <CardContent className="p-6 flex flex-col items-center">
                   <div className="relative mb-4">
                     <Avatar className="h-32 w-32">
-                      <AvatarImage src="/placeholder.svg?height=128&width=128" alt="Usuario" />
-                      <AvatarFallback className="text-3xl">JP</AvatarFallback>
+                      <AvatarImage
+                        src={
+                          userData?.avatar ||
+                          "/placeholder.svg?height=128&width=128"
+                        }
+                        alt={userData?.name || "Usuario"}
+                      />
+                      <AvatarFallback className="text-3xl">
+                        {userData?.name?.charAt(0) || "U"}
+                      </AvatarFallback>
                     </Avatar>
-                    <Button size="icon" variant="secondary" className="absolute bottom-0 right-0 rounded-full">
-                      <Camera className="h-4 w-4" />
-                    </Button>
                   </div>
-                  <h3 className="text-xl font-bold">Juan Pérez</h3>
-                  <p className="text-sm text-muted-foreground mb-4">juan.perez@ejemplo.com</p>
-                  <div className="flex flex-wrap gap-2 justify-center">
-                    <Badge variant="secondary">Nivel Intermedio</Badge>
-                    <Badge variant="outline">4 semanas</Badge>
-                    <Badge variant="outline">Hipertrofia</Badge>
-                  </div>
+                  <h3 className="text-xl font-bold">
+                    {userData?.name || "Usuario"}
+                  </h3>
+                  <p className="text-sm text-muted-foreground mb-4">
+                    {userData?.email || "Sin correo electrónico"}
+                  </p>
                 </CardContent>
               </Card>
 
@@ -57,9 +256,15 @@ export default function PerfilPage() {
                 <CardHeader className="flex flex-row items-center justify-between">
                   <div>
                     <CardTitle>Información personal</CardTitle>
-                    <CardDescription>Actualiza tus datos personales</CardDescription>
+                    <CardDescription>
+                      Actualiza tus datos personales
+                    </CardDescription>
                   </div>
-                  <Button variant="outline" size="icon" onClick={() => setEditing(!editing)}>
+                  <Button
+                    variant="outline"
+                    size="icon"
+                    onClick={() => setEditing(!editing)}
+                  >
                     <Edit className="h-4 w-4" />
                   </Button>
                 </CardHeader>
@@ -67,307 +272,208 @@ export default function PerfilPage() {
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div className="space-y-2">
                       <Label htmlFor="nombre">Nombre</Label>
-                      <Input id="nombre" defaultValue="Juan" disabled={!editing} />
-                    </div>
-                    <div className="space-y-2">
-                      <Label htmlFor="apellido">Apellido</Label>
-                      <Input id="apellido" defaultValue="Pérez" disabled={!editing} />
+                      <Input
+                        id="nombre"
+                        defaultValue={userData?.name || ""}
+                        disabled
+                      />
                     </div>
                   </div>
 
                   <div className="space-y-2">
                     <Label htmlFor="email">Correo electrónico</Label>
-                    <Input id="email" type="email" defaultValue="juan.perez@ejemplo.com" disabled={!editing} />
-                  </div>
-
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <div className="space-y-2">
-                      <Label htmlFor="telefono">Teléfono</Label>
-                      <Input id="telefono" defaultValue="+34 612 345 678" disabled={!editing} />
-                    </div>
-                    <div className="space-y-2">
-                      <Label htmlFor="fecha-nacimiento">Fecha de nacimiento</Label>
-                      <Input id="fecha-nacimiento" defaultValue="15/05/1990" disabled={!editing} />
-                    </div>
+                    <Input
+                      id="email"
+                      type="email"
+                      defaultValue={userData?.email || ""}
+                      disabled
+                    />
                   </div>
 
                   <div className="space-y-2">
                     <Label htmlFor="genero">Género</Label>
-                    <Select defaultValue="masculino" disabled={!editing}>
+                    <Select
+                      value={userData?.genero || "Otro"}
+                      onValueChange={(value) =>
+                        setUserData((prev) => ({ ...prev, genero: value }))
+                      }
+                      disabled={!editing}
+                    >
                       <SelectTrigger id="genero">
-                        <SelectValue placeholder="Selecciona tu género" />
+                        <SelectValue placeholder="Selecciona tu género">
+                          {userData?.genero === "M"
+                            ? "Masculino"
+                            : userData?.genero === "F"
+                            ? "Femenino"
+                            : "Otro"}
+                        </SelectValue>
                       </SelectTrigger>
                       <SelectContent>
-                        <SelectItem value="masculino">Masculino</SelectItem>
-                        <SelectItem value="femenino">Femenino</SelectItem>
-                        <SelectItem value="otro">Otro</SelectItem>
-                        <SelectItem value="no-especificar">Prefiero no especificar</SelectItem>
+                        <SelectItem value="M">Masculino</SelectItem>
+                        <SelectItem value="F">Femenino</SelectItem>
+                        <SelectItem value="Otro">Otro</SelectItem>
                       </SelectContent>
                     </Select>
                   </div>
+
+                  <div className="space-y-2">
+                    <Label htmlFor="edad">Edad</Label>
+                    <Input
+                      id="edad"
+                      type="number"
+                      defaultValue={userData?.edad || ""}
+                      disabled={!editing}
+                    />
+                  </div>
                 </CardContent>
-                <CardFooter className={editing ? "flex justify-end gap-2" : "hidden"}>
+                <CardFooter
+                  className={editing ? "flex justify-end gap-2" : "hidden"}
+                >
                   <Button variant="outline" onClick={() => setEditing(false)}>
                     Cancelar
                   </Button>
-                  <Button onClick={() => setEditing(false)}>Guardar cambios</Button>
+                  <Button
+                    onClick={() =>
+                      handleSaveChanges(userData, setUserData, setEditing)
+                    }
+                  >
+                    Guardar cambios
+                  </Button>
                 </CardFooter>
               </Card>
-
-              <Card className="md:col-span-3">
-                <CardHeader>
+            </div>
+          </TabsContent>
+          <TabsContent value="datos_fisicos">
+            <Card className="md:col-span-3">
+              <CardHeader className="flex flex-row items-center justify-between">
+                <div>
                   <CardTitle>Datos físicos y objetivos</CardTitle>
-                  <CardDescription>Actualiza tus medidas y objetivos de entrenamiento</CardDescription>
-                </CardHeader>
-                <CardContent className="space-y-4">
-                  <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                    <div className="space-y-2">
-                      <Label htmlFor="altura">Altura (cm)</Label>
-                      <Input id="altura" type="number" defaultValue="178" disabled={!editing} />
-                    </div>
-                    <div className="space-y-2">
-                      <Label htmlFor="peso">Peso actual (kg)</Label>
-                      <Input id="peso" type="number" defaultValue="78.5" disabled={!editing} />
-                    </div>
-                    <div className="space-y-2">
-                      <Label htmlFor="objetivo-peso">Peso objetivo (kg)</Label>
-                      <Input id="objetivo-peso" type="number" defaultValue="75" disabled={!editing} />
-                    </div>
-                  </div>
-
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <div className="space-y-2">
-                      <Label htmlFor="objetivo-principal">Objetivo principal</Label>
-                      <Select defaultValue="hipertrofia" disabled={!editing}>
-                        <SelectTrigger id="objetivo-principal">
-                          <SelectValue placeholder="Selecciona tu objetivo" />
-                        </SelectTrigger>
-                        <SelectContent>
-                          <SelectItem value="perder-peso">Perder peso</SelectItem>
-                          <SelectItem value="hipertrofia">Ganar masa muscular</SelectItem>
-                          <SelectItem value="tonificar">Tonificar el cuerpo</SelectItem>
-                          <SelectItem value="resistencia">Mejorar resistencia</SelectItem>
-                          <SelectItem value="fuerza">Aumentar fuerza</SelectItem>
-                        </SelectContent>
-                      </Select>
-                    </div>
-                    <div className="space-y-2">
-                      <Label htmlFor="nivel-actividad">Nivel de actividad física</Label>
-                      <Select defaultValue="moderado" disabled={!editing}>
-                        <SelectTrigger id="nivel-actividad">
-                          <SelectValue placeholder="Selecciona tu nivel" />
-                        </SelectTrigger>
-                        <SelectContent>
-                          <SelectItem value="sedentario">Sedentario (poco o nada de ejercicio)</SelectItem>
-                          <SelectItem value="ligero">Ligero (ejercicio 1-3 días/semana)</SelectItem>
-                          <SelectItem value="moderado">Moderado (ejercicio 3-5 días/semana)</SelectItem>
-                          <SelectItem value="activo">Activo (ejercicio 6-7 días/semana)</SelectItem>
-                          <SelectItem value="muy-activo">Muy activo (ejercicio intenso diario)</SelectItem>
-                        </SelectContent>
-                      </Select>
-                    </div>
-                  </div>
-                </CardContent>
-                <CardFooter className={editing ? "flex justify-end gap-2" : "hidden"}>
-                  <Button variant="outline" onClick={() => setEditing(false)}>
-                    Cancelar
-                  </Button>
-                  <Button onClick={() => setEditing(false)}>Guardar cambios</Button>
-                </CardFooter>
-              </Card>
-            </div>
-          </TabsContent>
-
-          <TabsContent value="cuenta">
-            <div className="grid grid-cols-1 gap-6">
-              <Card>
-                <CardHeader>
-                  <CardTitle>Seguridad de la cuenta</CardTitle>
-                  <CardDescription>Gestiona tu contraseña y seguridad</CardDescription>
-                </CardHeader>
-                <CardContent className="space-y-4">
-                  <div className="space-y-2">
-                    <Label htmlFor="current-password">Contraseña actual</Label>
-                    <Input id="current-password" type="password" />
-                  </div>
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <div className="space-y-2">
-                      <Label htmlFor="new-password">Nueva contraseña</Label>
-                      <Input id="new-password" type="password" />
-                    </div>
-                    <div className="space-y-2">
-                      <Label htmlFor="confirm-password">Confirmar nueva contraseña</Label>
-                      <Input id="confirm-password" type="password" />
-                    </div>
-                  </div>
-                </CardContent>
-                <CardFooter className="flex justify-end">
-                  <Button>Actualizar contraseña</Button>
-                </CardFooter>
-              </Card>
-
-              <Card>
-                <CardHeader className="flex flex-row items-center">
-                  <div className="mr-4">
-                    <Lock className="h-6 w-6 text-primary" />
-                  </div>
-                  <div>
-                    <CardTitle>Autenticación de dos factores</CardTitle>
-                    <CardDescription>Añade una capa extra de seguridad a tu cuenta</CardDescription>
-                  </div>
-                </CardHeader>
-                <CardContent>
-                  <p className="text-sm text-muted-foreground mb-4">
-                    La autenticación de dos factores añade una capa adicional de seguridad a tu cuenta al requerir más
-                    que solo una contraseña para iniciar sesión.
-                  </p>
-                  <Button variant="outline">Configurar autenticación de dos factores</Button>
-                </CardContent>
-              </Card>
-
-              <Card>
-                <CardHeader className="flex flex-row items-center">
-                  <div className="mr-4">
-                    <User className="h-6 w-6 text-destructive" />
-                  </div>
-                  <div>
-                    <CardTitle>Eliminar cuenta</CardTitle>
-                    <CardDescription>Elimina permanentemente tu cuenta y todos tus datos</CardDescription>
-                  </div>
-                </CardHeader>
-                <CardContent>
-                  <p className="text-sm text-muted-foreground mb-4">
-                    Una vez que elimines tu cuenta, no hay vuelta atrás. Por favor, asegúrate de que realmente quieres
-                    hacer esto.
-                  </p>
-                  <Button variant="destructive">Eliminar cuenta</Button>
-                </CardContent>
-              </Card>
-            </div>
-          </TabsContent>
-
-          <TabsContent value="notificaciones">
-            <Card>
-              <CardHeader>
-                <div className="flex items-center gap-4">
-                  <Bell className="h-6 w-6 text-primary" />
-                  <div>
-                    <CardTitle>Preferencias de notificaciones</CardTitle>
-                    <CardDescription>Configura cómo y cuándo quieres recibir notificaciones</CardDescription>
-                  </div>
+                  <CardDescription>
+                    Actualiza tus medidas y objetivos de entrenamiento
+                  </CardDescription>
                 </div>
+                <Button
+                  variant="outline"
+                  size="icon"
+                  onClick={() => setEditingDatosFisicos(!editingDatosFisicos)}
+                >
+                  <Edit className="h-4 w-4" />
+                </Button>
               </CardHeader>
-              <CardContent className="space-y-6">
-                <div className="space-y-4">
-                  <h3 className="text-lg font-medium">Notificaciones por correo electrónico</h3>
+              <CardContent className="space-y-4">
+                <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
                   <div className="space-y-2">
-                    <div className="flex items-center justify-between">
-                      <div>
-                        <Label htmlFor="email-recordatorios" className="font-medium">
-                          Recordatorios de entrenamiento
-                        </Label>
-                        <p className="text-sm text-muted-foreground">
-                          Recibe recordatorios de tus entrenamientos programados
-                        </p>
-                      </div>
-                      <input
-                        type="checkbox"
-                        id="email-recordatorios"
-                        defaultChecked
-                        className="h-4 w-4 rounded border-gray-300 text-primary focus:ring-primary"
-                      />
-                    </div>
-                    <div className="flex items-center justify-between">
-                      <div>
-                        <Label htmlFor="email-progreso" className="font-medium">
-                          Informes de progreso
-                        </Label>
-                        <p className="text-sm text-muted-foreground">Recibe informes semanales de tu progreso</p>
-                      </div>
-                      <input
-                        type="checkbox"
-                        id="email-progreso"
-                        defaultChecked
-                        className="h-4 w-4 rounded border-gray-300 text-primary focus:ring-primary"
-                      />
-                    </div>
-                    <div className="flex items-center justify-between">
-                      <div>
-                        <Label htmlFor="email-consejos" className="font-medium">
-                          Consejos y recomendaciones
-                        </Label>
-                        <p className="text-sm text-muted-foreground">
-                          Recibe consejos personalizados para mejorar tu entrenamiento
-                        </p>
-                      </div>
-                      <input
-                        type="checkbox"
-                        id="email-consejos"
-                        defaultChecked
-                        className="h-4 w-4 rounded border-gray-300 text-primary focus:ring-primary"
-                      />
-                    </div>
+                    <Label htmlFor="peso">Peso (kg)</Label>
+                    <Input
+                      id="peso"
+                      type="number"
+                      defaultValue={physicalData?.peso || ""}
+                      disabled={!editingDatosFisicos}
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="altura">Altura (cm)</Label>
+                    <Input
+                      id="altura"
+                      type="number"
+                      defaultValue={physicalData?.altura || ""}
+                      disabled={!editingDatosFisicos}
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="imc">IMC</Label>
+                    <Input
+                      id="imc"
+                      type="number"
+                      value={(
+                        ((physicalData?.peso || 0) /
+                          (physicalData?.altura || 1) ** 2) *
+                        10000
+                      ).toFixed(2)}
+                      disabled={true}
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="cintura">Cintura (cm)</Label>
+                    <Input
+                      id="cintura"
+                      type="number"
+                      defaultValue={physicalData?.cintura || ""}
+                      disabled={!editingDatosFisicos}
+                    />
                   </div>
                 </div>
-
-                <div className="space-y-4">
-                  <h3 className="text-lg font-medium">Notificaciones push</h3>
+                <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
                   <div className="space-y-2">
-                    <div className="flex items-center justify-between">
-                      <div>
-                        <Label htmlFor="push-recordatorios" className="font-medium">
-                          Recordatorios de entrenamiento
-                        </Label>
-                        <p className="text-sm text-muted-foreground">
-                          Recibe notificaciones antes de tus entrenamientos
-                        </p>
-                      </div>
-                      <input
-                        type="checkbox"
-                        id="push-recordatorios"
-                        defaultChecked
-                        className="h-4 w-4 rounded border-gray-300 text-primary focus:ring-primary"
-                      />
-                    </div>
-                    <div className="flex items-center justify-between">
-                      <div>
-                        <Label htmlFor="push-logros" className="font-medium">
-                          Logros y metas
-                        </Label>
-                        <p className="text-sm text-muted-foreground">Recibe notificaciones cuando alcances tus metas</p>
-                      </div>
-                      <input
-                        type="checkbox"
-                        id="push-logros"
-                        defaultChecked
-                        className="h-4 w-4 rounded border-gray-300 text-primary focus:ring-primary"
-                      />
-                    </div>
-                    <div className="flex items-center justify-between">
-                      <div>
-                        <Label htmlFor="push-actualizaciones" className="font-medium">
-                          Actualizaciones de la aplicación
-                        </Label>
-                        <p className="text-sm text-muted-foreground">Recibe notificaciones sobre nuevas funciones</p>
-                      </div>
-                      <input
-                        type="checkbox"
-                        id="push-actualizaciones"
-                        defaultChecked
-                        className="h-4 w-4 rounded border-gray-300 text-primary focus:ring-primary"
-                      />
-                    </div>
+                    <Label htmlFor="pecho">Pecho (cm)</Label>
+                    <Input
+                      id="pecho"
+                      type="number"
+                      defaultValue={physicalData?.pecho || ""}
+                      disabled={!editingDatosFisicos}
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="brazos">Brazos (cm)</Label>
+                    <Input
+                      id="brazos"
+                      type="number"
+                      defaultValue={physicalData?.brazos || ""}
+                      disabled={!editingDatosFisicos}
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="piernas">Piernas (cm)</Label>
+                    <Input
+                      id="piernas"
+                      type="number"
+                      defaultValue={physicalData?.piernas || ""}
+                      disabled={!editingDatosFisicos}
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="objetivo">Objetivo</Label>
+                    <Select
+                      value={selectedObjective}
+                      onValueChange={(value) => setSelectedObjective(value)}
+                      disabled={!editingDatosFisicos}
+                    >
+                      <SelectTrigger id="objetivo">
+                        <SelectValue placeholder="Selecciona tu objetivo" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="perder_grasa">
+                          Pérdida de grasa
+                        </SelectItem>
+                        <SelectItem value="hipertrofia">Hipertrofia</SelectItem>
+                        <SelectItem value="resistencia">Resistencia</SelectItem>
+                        <SelectItem value="salud_general">
+                          Salud general
+                        </SelectItem>
+                      </SelectContent>
+                    </Select>
                   </div>
                 </div>
               </CardContent>
-              <CardFooter className="flex justify-end">
-                <Button>Guardar preferencias</Button>
+              <CardFooter
+                className={
+                  editingDatosFisicos ? "flex justify-end gap-2" : "hidden"
+                }
+              >
+                <Button
+                  variant="outline"
+                  onClick={() => setEditingDatosFisicos(false)}
+                >
+                  Cancelar
+                </Button>
+                <Button onClick={handleSavePhysicalData}>
+                  Guardar cambios
+                </Button>
               </CardFooter>
             </Card>
           </TabsContent>
         </Tabs>
       </div>
     </MainLayout>
-  )
+  );
 }
-
