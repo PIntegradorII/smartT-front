@@ -58,7 +58,7 @@ export function MainLayout({ children }: MainLayoutProps) {
     // { name: "Calendario", href: "/calendario", icon: Calendar },
     { name: "Generar Rutina", href: "/generar-rutina", icon: Sparkles },
     { name: "Perfil", href: "/perfil", icon: User },
-    // { name: "Administración", href: "/admin", icon: Settings },
+   { name: "Nutrición", href: "/nutricion", icon: Settings },
     // { name: "Configuración", href: "/configuracion", icon: Settings },
   ]
 
