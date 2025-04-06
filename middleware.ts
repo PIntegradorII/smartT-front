@@ -40,7 +40,12 @@ export function middleware(req: NextRequest) {
     "/generar-rutina",
     "/perfil",
     "/admin",
+<<<<<<< HEAD
     "/nutricion",
+=======
+    "/configuracion",
+    "/receta",
+>>>>>>> c5ba0d3 (HU-Voz-Texto realizada Recetas)
   ];
 
   // 🚫 Usuarios con ruta = 1 solo pueden acceder a estas rutas

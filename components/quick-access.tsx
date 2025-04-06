@@ -1,5 +1,5 @@
 import Link from "next/link"
-import { BarChart3, Dumbbell, Settings, User, Sparkles } from "lucide-react"
+import { BarChart3, Dumbbell, Settings, User, Sparkles, Utensils } from "lucide-react"
 import { Card, CardContent } from "@/components/ui/card"
 
 export function QuickAccess() {
@@ -7,7 +7,12 @@ export function QuickAccess() {
     { name: "Dashboard", href: "/dashboard", icon: BarChart3, color: "bg-primary" },
     { name: "Rutina", href: "/rutina", icon: Dumbbell, color: "bg-secondary" },
     { name: "Generar Rutina", href: "/generar-rutina", icon: Sparkles, color: "bg-accent" },
+<<<<<<< HEAD
    { name: "Nutrición", href: "/nutricion", icon: BarChart3, color: "bg-success" },
+=======
+    { name: "Receta", href: "/receta", icon: Utensils, color: "bg-warning" },
+    // { name: "Progreso", href: "/progreso", icon: BarChart3, color: "bg-success" },
+>>>>>>> c5ba0d3 (HU-Voz-Texto realizada Recetas)
     // { name: "Perfil", href: "/perfil", icon: User, color: "bg-primary" },
     // { name: "Admin", href: "/admin", icon: Settings, color: "bg-secondary" },
   ]
