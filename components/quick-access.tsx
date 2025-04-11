@@ -10,7 +10,7 @@ export function QuickAccess() {
     { name: "Receta", href: "/receta", icon: Utensils, color: "bg-warning" },
     // { name: "Progreso", href: "/progreso", icon: BarChart3, color: "bg-success" },
     { name: "Nutrición", href: "/nutricion", icon: BarChart3, color: "bg-success" },
-    { name: "Receta", href: "/receta", icon: Utensils, color: "bg-warning" },
+
     // { name: "Progreso", href: "/progreso", icon: BarChart3, color: "bg-success" },
 
     // { name: "Perfil", href: "/perfil", icon: User, color: "bg-primary" },

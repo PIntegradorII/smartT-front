@@ -60,7 +60,6 @@ export function MainLayout({ children }: MainLayoutProps) {
     { name: "Perfil", href: "/perfil", icon: User },
     { name: "Receta", href: "/receta", icon: Utensils },
     { name: "Nutrición", href: "/nutricion", icon: Settings },
-    { name: "Receta", href: "/receta", icon: Utensils },
     // { name: "Configuración", href: "/configuracion", icon: Settings },
   ]
 
