@@ -31,6 +31,7 @@ import {
   getPhysicalDataById,
   updatePhysicalData,
 } from "@/services/user/physical_data";
+import { savePhysicalHistory } from "@/services/physical_history/physical_historyService";
 
 export default function PerfilPage() {
   interface UserData {
@@ -59,6 +60,7 @@ export default function PerfilPage() {
   const [physicalData, setPhysicalData] = useState<any | null>(null);
   const [editingDatosFisicos, setEditingDatosFisicos] = useState(false);
   const [selectedObjective, setSelectedObjective] = useState(physicalData?.objetivo || "");
+  const [physicalId, setPhysicalId] = useState(null);
 
   async function handleSaveChanges(
     userData: UserData | null,
@@ -135,6 +137,9 @@ export default function PerfilPage() {
           objetivo: physical.objetivo,
           imc: physical.imc,
         }));
+
+        setPhysicalId(physical.id);
+
         setSelectedObjective(physical.objetivo);
       } catch (error) {
         console.error("Error al recuperar los datos del usuario:", error);
@@ -184,12 +189,33 @@ export default function PerfilPage() {
         imc, // IMC calculado correctamente
       };
 
+      const historyData = {
+        physical_id: physicalId, // Cambiar `id` a `physical_id`
+        user_id: physicalData.user_id,
+        peso: physicalData.peso,
+        altura: physicalData.altura,
+        imc: physicalData.imc,
+        cintura: physicalData.cintura,
+        pecho: physicalData.pecho,
+        brazos: physicalData.brazos,
+        piernas: physicalData.piernas,
+        objetivo: physicalData.objetivo,
+        estado: 0,
+        created_at: new Date().toISOString(), // Fecha actual en formato ISO
+        archived_at:new Date().toISOString(), // Fecha actual en formato ISO
+      };
+            
+
       console.log("Datos físicos actualizados correctamente:", updatedData);
 
       // Validar datos si es necesario (opcional)
       if (!peso || !altura) {
         throw new Error("Los campos 'peso' y 'altura' son obligatorios.");
       }
+
+      // Llamar al servicio para guardar los datos en la tabla history
+      console.log("Guardando datos en la tabla history:", historyData);
+      await savePhysicalHistory(historyData);
 
       // Actualizar el estado local
       setPhysicalData((prev: typeof physicalData) => ({

@@ -6,7 +6,7 @@ import { useState } from "react"
 import { usePathname } from "next/navigation"
 import { signOutBackend } from "@/services/login/authService";
 import Link from "next/link"
-import { BarChart3, Home, Menu, User, Dumbbell, Calendar, Settings, LogOut, X, Sparkles, Utensils } from "lucide-react"
+import { BarChart3, Home, Menu, User, Dumbbell, Calendar, Settings, LogOut, X, Sparkles, Utensils, Ruler } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { cn } from "@/lib/utils"
@@ -59,8 +59,8 @@ export function MainLayout({ children }: MainLayoutProps) {
     { name: "Generar Rutina", href: "/generar-rutina", icon: Sparkles },
     { name: "Perfil", href: "/perfil", icon: User },
     { name: "Receta", href: "/receta", icon: Utensils },
-   { name: "Nutrición", href: "/nutricion", icon: Settings },
-    // { name: "Configuración", href: "/configuracion", icon: Settings },
+    { name: "Nutrición", href: "/nutricion", icon: Settings },
+    { name: "Medidas", href: "/medidas", icon: Ruler },
   ]
 
   const handleLogout = async () => {
