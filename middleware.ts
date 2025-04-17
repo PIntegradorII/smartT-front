@@ -44,6 +44,7 @@ export function middleware(req: NextRequest) {
     "/receta",
     "/nutricion",
     "/medidas",
+    "/configuracion",
   ];
 
   // 🚫 Usuarios con ruta = 1 solo pueden acceder a estas rutas

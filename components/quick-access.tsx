@@ -9,7 +9,10 @@ export function QuickAccess() {
     { name: "Generar Rutina", href: "/generar-rutina", icon: Sparkles, color: "bg-accent" },
     { name: "Receta", href: "/receta", icon: Utensils, color: "bg-warning" },
     // { name: "Progreso", href: "/progreso", icon: BarChart3, color: "bg-success" },
-   { name: "Nutrición", href: "/nutricion", icon: BarChart3, color: "bg-success" },
+    { name: "Nutrición", href: "/nutricion", icon: BarChart3, color: "bg-success" },
+
+    // { name: "Progreso", href: "/progreso", icon: BarChart3, color: "bg-success" },
+
     // { name: "Perfil", href: "/perfil", icon: User, color: "bg-primary" },
     // { name: "Admin", href: "/admin", icon: Settings, color: "bg-secondary" },
   ]
