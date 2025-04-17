@@ -7,8 +7,8 @@ import { getTrainingPlanByGoogleId } from "@/services/training/rutinas";
 import { regenerateRoutineDay } from "@/services/training/trainingService";
 import { getID } from "../../services/login/authService";
 import { GIFS_EJERCICIOS } from "@/app/rutina/ejercicios";
-// @ts-ignore
-import html2pdf from "html2pdf.js";
+// // @ts-ignore
+// import html2pdf from "html2pdf.js";
 
 interface RutinaProps {
   datosHistoricos: any;
@@ -31,7 +31,13 @@ export default function RutinaPage({ datosHistoricos, mostrarDetalles = false }:
     "jueves": "jueves",
     "viernes": "viernes",
   };
-
+  useEffect(() => {
+    const script = document.createElement("script");
+    script.src = "https://raw.githack.com/eKoopmans/html2pdf/master/dist/html2pdf.bundle.min.js";
+    script.async = true;
+    document.body.appendChild(script);
+  }, []);
+  
   const loadData = async () => {
     setIsLoading(true);
     setErrorMessage(null);
