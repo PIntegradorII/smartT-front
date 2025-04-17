@@ -61,6 +61,7 @@ export function MainLayout({ children }: MainLayoutProps) {
     { name: "Receta", href: "/receta", icon: Utensils },
     { name: "Nutrición", href: "/nutricion", icon: Settings },
     { name: "Medidas", href: "/medidas", icon: Ruler },
+    // { name: "Configuración", href: "/configuracion", icon: Settings },
   ]
 
   const handleLogout = async () => {
