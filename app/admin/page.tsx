@@ -237,12 +237,12 @@ export default function AdminPage() {
                         </Badge>
                       </td>
                       <td className="py-3 px-4">
-                        <Badge variant={user.status === "activo" ? "success" : "secondary"}>
+                        <Badge variant={user.status === "activo" ? "default" : "secondary"}>
                           {user.status === "activo" ? "Activo" : "Inactivo"}
                         </Badge>
                       </td>
                       <td className="py-3 px-4">
-                        <Badge variant={user.plan === "premium" ? "accent" : "outline"}>
+                        <Badge variant={user.plan === "premium" ? "default" : "outline"}>
                           {user.plan === "premium" ? "Premium" : "Básico"}
                         </Badge>
                       </td>
