@@ -1,14 +1,14 @@
-import { ElevenLabsClient } from "elevenlabs";
+// generarAudio.tsx
 
-const client = new ElevenLabsClient({
-  apiKey: "sk_bbfa19d703aeddf2ba3ddba8a42766b0040a8ad975675d20"
-});
-
-export const generarAudioResumen = async (rutina: any, usuario: string, dia: string): Promise<string> => {
+export const generarAudioResumen = async (
+  rutina: any,
+  usuario: string,
+  dia: string
+): Promise<string> => {
   const primerNombre = usuario.split(" ")[0];
   let texto = `¡Hola ${primerNombre}! Aquí tienes un resumen de tu rutina para el día ${dia}. `;
 
-  if (rutina.ejercicios.length === 0) {
+  if (!rutina?.ejercicios || rutina.ejercicios.length === 0) {
     texto += "Hoy no tienes ejercicios asignados. ¡Aprovecha para descansar o hacer movilidad ligera!";
   } else {
     texto += "Vas a trabajar con los siguientes ejercicios: ";
@@ -18,18 +18,30 @@ export const generarAudioResumen = async (rutina: any, usuario: string, dia: str
     texto += "Recuerda calentar bien antes de comenzar. ¡Éxitos en tu entrenamiento!";
   }
 
-  const stream = await client.textToSpeech.convert("21m00Tcm4TlvDq8ikWAM", {
-    output_format: "mp3_44100_128",
-    text: texto,
-    model_id: "eleven_multilingual_v2"
-  });
+  const apiKey = 'OgOJwJKXN9SDEcZAIXoSz1WZjom5gL3WTeB4IDZlLRsH'; // ⚠️ Solo para pruebas. NO en producción.
+  const url = 'https://api.au-syd.text-to-speech.watson.cloud.ibm.com/v1/synthesize?voice=es-LA_SofiaV3Voice';
 
-  const chunks: Uint8Array[] = [];
-  for await (const chunk of stream) {
-    chunks.push(chunk);
+  try {
+    const response = await fetch(url, {
+      method: 'POST',
+      headers: {
+        Authorization: 'Basic ' + btoa('apikey:' + apiKey),
+        'Content-Type': 'application/json',
+        Accept: 'audio/mp3',
+      },
+      body: JSON.stringify({ text: texto }),
+    });
+
+    if (!response.ok) {
+      throw new Error(`IBM Watson error: ${response.statusText}`);
+    }
+
+    const arrayBuffer = await response.arrayBuffer();
+    const blob = new Blob([arrayBuffer], { type: 'audio/mp3' });
+    const audioURL = URL.createObjectURL(blob);
+    return audioURL;
+  } catch (error) {
+    console.error('Error generando audio:', error);
+    throw error;
   }
-
-  const blob = new Blob(chunks, { type: "audio/mpeg" });
-  const url = URL.createObjectURL(blob);
-  return url;
 };
