@@ -18,7 +18,7 @@ export const generarAudioResumen = async (
     texto += "Recuerda calentar bien antes de comenzar. ¡Éxitos en tu entrenamiento!";
   }
 
-  const apiKey = 'OgOJwJKXN9SDEcZAIXoSz1WZjom5gL3WTeB4IDZlLRsH'; // ⚠️ Solo para pruebas. NO en producción.
+  const apiKey = 'OgOJwJKXN9SDEcZAIXoSz1WZjom5gL3WTeB4IDZlLRsH';
   const url = 'https://api.au-syd.text-to-speech.watson.cloud.ibm.com/v1/synthesize?voice=es-LA_SofiaV3Voice';
 
   try {
