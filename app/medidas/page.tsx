@@ -7,6 +7,9 @@ import { ArrowDown, ArrowUp, BarChart3, LineChart, Scale, TrendingUp } from "luc
 import { getPhysicalHistory } from "@/services/physical_history/physical_historyService"
 import { getID } from "@/services/login/authService";
 import { getPhysicalDataById} from "@/services/user/physical_data";
+import { generarTextoMedidas } from "@/services/physical_history/physical_historyService";
+import { generarAudioProgresoFisico } from "@/services/elevenlabs/generarAudioProgresoFisico";
+
 
 export default function ProgresoPage() {
   interface PhysicalRecord {
@@ -18,11 +21,17 @@ export default function ProgresoPage() {
     cintura: number
     brazos: number
     piernas: number
+    objetivo: string
   }
 
   const [history, setHistory] = useState<PhysicalRecord[]>([])
   const [latest, setLatest] = useState<PhysicalRecord | null>(null)
   const [physical, setPhysical] = useState<PhysicalRecord | null>(null)
+  const [question, setQuestion] = useState<string>(""); // Estado para la pregunta
+  const [message, setResponse] = useState<string>(""); // Estado para la pregunta
+  const [error, setError] = useState(""); // Estado para el mensaje de error
+  const [loadingAudio, setLoadingAudio] = useState(false);
+
 
   interface UserData {
     id: string;
@@ -46,7 +55,7 @@ export default function ProgresoPage() {
     // console.log("ID de usuario:", fetchedId); // Verifica el ID obtenido
 
     const physical = await getPhysicalDataById(fetchedId);
-    // console.log("Datos físicos:", physical);
+    console.log("Datos físicos:", physical);
     setPhysical(physical); // <- aquí lo guardas en el estado
 
     const sortedData = (data || []).sort(
@@ -62,6 +71,110 @@ export default function ProgresoPage() {
   fetchHistory();
 }, []);
 
+const handleQuestionChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+  setQuestion(event.target.value); // Actualiza el estado con la pregunta
+};
+
+const handleSubmit = async () => {
+
+  setLoadingAudio(true); // ⏳ empieza la carga
+
+  if (!question.trim()) {
+    setError("El campo no puede estar vacío"); // Muestra un mensaje si el campo está vacío
+    return;
+  }
+
+  // Verifica si tenemos los datos necesarios
+  if (!physical || !userData) {
+    console.log("Faltan datos para enviar al backend");
+    return;
+  }
+
+  const processResponse = (respuesta: string): string => {
+    try {
+      if (!respuesta) return "No se recibió una respuesta válida del servidor.";
+  
+      // Elimina el contenido entre <think>...</think>
+      const cleanedMessage = respuesta.replace(/<think>[\s\S]*?<\/think>/g, '').trim();
+  
+      return cleanedMessage || "No se encontró una respuesta clara.";
+    } catch (error) {
+      console.error("Error al procesar la respuesta:", error);
+      return "Ocurrió un error al procesar la respuesta.";
+    }
+  };
+  
+  // Estructura el historial con los campos faltantes
+  const finalHistory = history.length === 0 ? [{
+    peso: physical.peso,
+    altura: physical.altura,
+    imc: physical.imc,
+    cintura: physical.cintura,
+    pecho: physical.pecho,
+    brazos: physical.brazos,
+    piernas: physical.piernas,
+    created_at: new Date().toISOString(),  // Fecha actual para el historial
+    physical_id: 0,  // Asignamos un ID temporal o 0 si es necesario
+    objetivo: physical.objetivo,  // Asumimos que 'objetivo' se encuentra en physical
+    archived_at: new Date().toISOString(),  // Fecha actual para archived_at
+    estado: 1  // Establecemos un estado por defecto (puede ser 0 o 1, según sea necesario)
+  }] : history;
+
+  // Estructura la entrada en el formato adecuado
+  const requestData = {
+    current_data: {
+      user_id: 1,  // ID del usuario
+      peso: physical.peso,
+      altura: physical.altura,
+      imc: physical.imc,
+      cintura: physical.cintura,
+      pecho: physical.pecho,
+      brazos: physical.brazos,
+      piernas: physical.piernas,
+      objetivo: physical.objetivo  // Suponiendo que el objetivo es fijo por ahora
+    },
+    historial: finalHistory.map(record => ({
+      peso: record.peso,
+      altura: record.altura,
+      imc: record.imc,
+      cintura: record.cintura,
+      pecho: record.pecho,
+      brazos: record.brazos,
+      piernas: record.piernas,
+      physical_id: 1,  // ID del registro físico
+      created_at: record.created_at,
+      objetivo: record.objetivo,  // Asegúrate de que objetivo esté presente
+      archived_at: record.created_at,  // Fecha de archivo
+      estado: 1  // Estado del registro
+    })),
+    pregunta: question // Aquí se usa la pregunta dinámica
+  };
+
+  let message = ""; // 👈 declarar aquí
+  // Muestra la estructura por consola para ver cómo se enviará
+  try {
+    const rawResponse = await generarTextoMedidas(requestData);
+    message = processResponse(rawResponse);
+    setResponse(message);
+    console.log("Mensaje procesado:", message);
+  } catch (error) {
+    console.error("Error al obtener la respuesta del backend:", error);
+    setLoadingAudio(false);
+    return;
+  }
+
+  const usuario = userData?.name || "Usuario";
+  const audioUrl = await generarAudioProgresoFisico(message, usuario); // ✅ aquí ya existe `message`;
+
+  // Resetea la pregunta
+  setQuestion("");
+  setError("");
+  setLoadingAudio(false); // ⏳ empieza la carga
+
+// Reproducir audio (opcional)
+  const audio = new Audio(audioUrl);
+  audio.play();
+};
 
   return (
     <MainLayout>
@@ -219,7 +332,40 @@ export default function ProgresoPage() {
             </div>
           </CardContent>
         </Card>
+
+        {/* Cuadro de texto para la pregunta */}
+        <Card>
+      <CardHeader className="flex flex-row items-center justify-between">
+        <div>
+          <CardTitle>Haz una pregunta</CardTitle>
+          <CardDescription>Escribe tu pregunta y presiona enviar</CardDescription>
+        </div>
+      </CardHeader>
+      <CardContent>
+        <div className="flex flex-col gap-4">
+          <input
+            type="text"
+            className="p-4 border rounded-lg"
+            value={question}
+            onChange={handleQuestionChange}
+            placeholder="Escribe tu pregunta aquí"
+          />
+          {error && <p className="text-red-500">{error}</p>} {/* Muestra el mensaje de error */}
+          <button
+            onClick={handleSubmit}
+            className="w-full p-4 bg-blue-500 text-white rounded-lg hover:bg-blue-600 disabled:opacity-50"
+            disabled={loadingAudio}
+          >
+            {loadingAudio ? "Cargando audio..." : "Enviar Pregunta"}
+          </button>
+        </div>
+      </CardContent>
+    </Card>
       </div>
     </MainLayout>
   )
 }
+function processResponse(respuesta: any) {
+  throw new Error("Function not implemented.")
+}
+
