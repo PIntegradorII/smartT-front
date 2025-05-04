@@ -45,8 +45,13 @@ export function middleware(req: NextRequest) {
     "/nutricion",
     "/medidas",
     "/configuracion",
-  ];
+    "/analisisVisualIA/reconocimientoMaq",
+    "/analisisVisualIA/analisisPla",
+    "/analisisVisualIA/informacionAli",
+    "/analisisVisualIA/escaneoNutri",
+    
 
+  ];
   // 🚫 Usuarios con ruta = 1 solo pueden acceder a estas rutas
   if (ruta === "1" && !allowedForRuta1.includes(pathname)) {
     return NextResponse.redirect(new URL("/dashboard", req.url));

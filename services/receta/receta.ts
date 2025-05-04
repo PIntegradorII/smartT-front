@@ -1,7 +1,7 @@
 import api from "../../app/services/api"; // Importar la configuración base de Axios
 
 // Generar receta a partir del archivo de audio y googleId
-export const generarReceta = async (googleId: string, audioFile: File) => {
+export const generarReceta = async (googleId: string, audioFile: File): Promise<any> => {
   try {
     // Crear un objeto FormData
     const formData = new FormData();
