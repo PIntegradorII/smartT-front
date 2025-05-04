@@ -42,7 +42,7 @@ export default function DailyNutrition({ google_id }: DailyNutritionProps) {
 
   const [nutritionPlan, setNutritionPlan] = useState<NutritionPlan | null>(null);
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
+  const [error, setError] = useState<string | null>(null);
 
 
 
@@ -57,7 +57,7 @@ export default function DailyNutrition({ google_id }: DailyNutritionProps) {
         const plan = await getNutritionPlan(google_id);
         setNutritionPlan(plan);
       } catch (err) {
-        setError(err.message || 'Error cargando el plan nutricional');
+        setError('Error cargando el plan nutricional');
       } finally {
         setLoading(false);
       }
