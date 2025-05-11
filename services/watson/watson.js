@@ -51,12 +51,22 @@ export const getNutritionPlan = async (googleId) => {
   }
 };
 
-export const regenerateNutritionPlan = async (googleId) => {
+
+export const deleteNutritionPlan = async (googleId) => {
   try {
-    const response = await api.post(`/diet/regenerate-nutrition-plan/${googleId}`);
-    return response.data;  // Regresa el plan actualizado
+    if (!googleId) {
+      throw new Error("Google ID es requerido");
+    }
+
+    const response = await api.delete(`/diet/diet-plan/${googleId}`);
+    console.log("Plan nutricional eliminado");
+    return true;
   } catch (error) {
-    console.error("Error al regenerar el plan nutricional:", error);
-    throw error;
+    console.error("Error al eliminar el plan nutricional:", {
+      request: error.config,
+      response: error.response?.data,
+      error: error.message,
+    });
+    return false;
   }
 };
