@@ -24,6 +24,7 @@ import {
   HeartPulse,
   ScanLine,
   QrCode,
+  Apple
 } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
@@ -98,7 +99,7 @@ export function MainLayout({ children }: MainLayoutProps) {
     { name: "Rutina", href: "/rutina", icon: Dumbbell },
     { name: "Generar Rutina", href: "/generar-rutina", icon: Sparkles },
     { name: "Receta", href: "/receta", icon: Utensils },
-    { name: "Nutrición", href: "/nutricion", icon: Settings },
+    { name: "Nutrición", href: "/nutricion", icon: Apple },
     {
       name: "Análisis Visual",
       icon: Brain,

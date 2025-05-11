@@ -5,9 +5,9 @@ import { useState, useRef, useEffect } from "react";
 import { Mic, MicOff } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import Daily_nutrition from "./daily_nutrition";
-import { speech_to_text } from "@/services/watson/watson";
-import audioBufferToWav from 'audiobuffer-to-wav';
-import { getNutritionPlan } from '@/services/watson/watson'; 
+import { deleteNutritionPlan, speech_to_text } from "@/services/watson/watson";
+import audioBufferToWav from "audiobuffer-to-wav";
+import { getNutritionPlan } from "@/services/watson/watson";
 import { Loader2 } from "lucide-react"; // Icono de loader
 
 export default function Nutricion() {
@@ -15,7 +15,7 @@ export default function Nutricion() {
   const [audioBlob, setAudioBlob] = useState<Blob | null>(null);
   const [transcription, setTranscription] = useState<string | null>(null);
   const [google_id, setUserId] = useState<number | null>(null);
-  const [hasNutritionPlan, setHasNutritionPlan] = useState(false); 
+  const [hasNutritionPlan, setHasNutritionPlan] = useState(false);
   const [showDailyNutrition, setShowDailyNutrition] = useState(false); // Estado para controlar la vista del plan nutricional.
   const [loading, setLoading] = useState(false); // Estado para el loader
 
@@ -25,7 +25,10 @@ export default function Nutricion() {
   const startRecording = async () => {
     try {
       const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
-      const options = { mimeType: 'audio/webm;codecs=opus', audioBitsPerSecond: 128000 };
+      const options = {
+        mimeType: "audio/webm;codecs=opus",
+        audioBitsPerSecond: 128000,
+      };
       const mediaRecorder = new MediaRecorder(stream, options);
 
       mediaRecorder.ondataavailable = (event) => {
@@ -33,20 +36,23 @@ export default function Nutricion() {
       };
 
       mediaRecorder.onstop = async () => {
-        const webmBlob = new Blob(audioChunksRef.current, { type: 'audio/webm' });
+        const webmBlob = new Blob(audioChunksRef.current, {
+          type: "audio/webm",
+        });
         try {
-          const audioContext = new (window.AudioContext || (window as any).webkitAudioContext)();
+          const audioContext = new (window.AudioContext ||
+            (window as any).webkitAudioContext)();
           const arrayBuffer = await webmBlob.arrayBuffer();
           const audioBuffer = await audioContext.decodeAudioData(arrayBuffer);
           const wavBuffer = audioBufferToWav(audioBuffer);
-          const wavBlob = new Blob([wavBuffer], { type: 'audio/wave' });
-          
+          const wavBlob = new Blob([wavBuffer], { type: "audio/wave" });
+
           setAudioBlob(wavBlob);
-          sendAudioToBackend(wavBlob); 
+          sendAudioToBackend(wavBlob);
         } catch (conversionError) {
           console.error("Error en conversión a WAV:", conversionError);
           setAudioBlob(webmBlob);
-          sendAudioToBackend(webmBlob);  // Enviar el audio aunque haya fallado la conversión
+          sendAudioToBackend(webmBlob); // Enviar el audio aunque haya fallado la conversión
         }
         audioChunksRef.current = [];
       };
@@ -61,7 +67,10 @@ export default function Nutricion() {
   };
 
   const stopRecording = () => {
-    if (mediaRecorderRef.current && mediaRecorderRef.current.state === "recording") {
+    if (
+      mediaRecorderRef.current &&
+      mediaRecorderRef.current.state === "recording"
+    ) {
       mediaRecorderRef.current.stop();
       setIsRecording(false);
     }
@@ -132,6 +141,30 @@ export default function Nutricion() {
     fetchUserId();
     checkNutritionPlan(); // Comprobamos si tiene un plan nutricional.
   }, [google_id]);
+  const handleRegeneratePlan = async () => {
+    if (!google_id) {
+      console.error("No hay Google ID disponible");
+      return;
+    }
+
+    try {
+      setLoading(true); // Activa el loader
+
+      // Eliminar el plan nutricional existente
+      const isDeleted = await deleteNutritionPlan(google_id);
+      if (isDeleted) {
+        console.log("Plan eliminado, listo para regenerar");
+        setHasNutritionPlan(false); // Oculta el plan actual
+        setShowDailyNutrition(false); // Vuelve a la vista de grabación
+      } else {
+        console.error("No se pudo eliminar el plan");
+      }
+    } catch (error) {
+      console.error("Error al regenerar el plan:", error);
+    } finally {
+      setLoading(false); // Desactiva el loader
+    }
+  };
 
   return (
     <MainLayout>
@@ -141,7 +174,11 @@ export default function Nutricion() {
         {/* Instrucciones para el usuario */}
         {!hasNutritionPlan && !loading && !showDailyNutrition && (
           <div className="text-center text-lg text-muted-foreground">
-            <p className="mb-4">Para generar tu plan nutricional, usa el botón de grabación y di qué tipo de dieta quieres. Por ejemplo, "Quiero una dieta balanceada".</p>
+            <p className="mb-4">
+              Para generar tu plan nutricional, usa el botón de grabación y di
+              qué tipo de dieta quieres. Por ejemplo, "Quiero una dieta
+              balanceada".
+            </p>
           </div>
         )}
 
@@ -165,15 +202,31 @@ export default function Nutricion() {
           <div className="flex flex-col items-center gap-4">
             <Button
               size="lg"
-              className={`rounded-full w-16 h-16 ${isRecording ? "bg-red-500 hover:bg-red-600" : "bg-green-500 hover:bg-green-600"}`}
+              className={`rounded-full w-16 h-16 ${
+                isRecording
+                  ? "bg-red-500 hover:bg-red-600"
+                  : "bg-green-500 hover:bg-green-600"
+              }`}
               onClick={isRecording ? stopRecording : startRecording}
             >
-              {isRecording ? <MicOff className="h-6 w-6 text-white" /> : <Mic className="h-6 w-6 text-white" />}
+              {isRecording ? (
+                <MicOff className="h-6 w-6 text-white" />
+              ) : (
+                <Mic className="h-6 w-6 text-white" />
+              )}
             </Button>
             <p className="text-sm text-muted-foreground">
-              {isRecording ? "Haz clic para detener la grabación" : "Haz clic para comenzar a grabar"}
+              {isRecording
+                ? "Haz clic para detener la grabación"
+                : "Haz clic para comenzar a grabar"}
             </p>
           </div>
+        )}
+        {/* Botón para regenerar el plan solo si hay un plan nutricional */}
+        {hasNutritionPlan && showDailyNutrition && !loading && (
+          <Button onClick={handleRegeneratePlan} disabled={loading}>
+            {loading ? <Loader2 className="animate-spin" /> : "Regenerar Plan"}
+          </Button>
         )}
       </div>
     </MainLayout>

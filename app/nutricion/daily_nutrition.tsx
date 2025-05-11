@@ -1,5 +1,9 @@
-import { useState, useEffect } from 'react';
-import { getNutritionPlan } from '@/services/watson/watson';
+import { useState, useEffect } from "react";
+import {
+  getNutritionPlan,
+
+} from "@/services/watson/watson";
+import { Button } from "@/components/ui/button";
 
 interface Meal {
   descripcion: string;
@@ -18,7 +22,9 @@ function MealCard({ title, meal }: MealCardProps) {
       <p className="text-sm text-gray-600 mb-3">{meal.descripcion}</p>
       <ul className="list-disc pl-5 space-y-1">
         {meal.componentes.map((item, index) => (
-          <li key={index} className="text-sm">{item}</li>
+          <li key={index} className="text-sm">
+            {item}
+          </li>
         ))}
       </ul>
     </div>
@@ -40,11 +46,29 @@ export default function DailyNutrition({ google_id }: DailyNutritionProps) {
     recomendaciones_generales: string[];
   }
 
-  const [nutritionPlan, setNutritionPlan] = useState<NutritionPlan | null>(null);
+  const [nutritionPlan, setNutritionPlan] = useState<NutritionPlan | null>(
+    null
+  );
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [regenerating, setRegenerating] = useState(false);
+
+  const fetchPlan = async () => {
+    try {
+      setLoading(true);
+      const plan = await getNutritionPlan(google_id);
+      setNutritionPlan(plan);
+    } catch (err) {
+      setError("Error cargando el plan nutricional");
+    } finally {
+      setLoading(false);
+    }
+  };
 
 
+  useEffect(() => {
+    fetchPlan();
+  }, []);
 
   useEffect(() => {
     const fetchPlan = async () => {
@@ -52,12 +76,11 @@ export default function DailyNutrition({ google_id }: DailyNutritionProps) {
         setLoading(true);
         // Obtener google_id del usuario (ejemplo desde localStorage)
         console.log("ID GOOGLE DAILY NUTRITION", google_id);
-    
 
         const plan = await getNutritionPlan(google_id);
         setNutritionPlan(plan);
       } catch (err) {
-        setError('Error cargando el plan nutricional');
+        setError("Error cargando el plan nutricional");
       } finally {
         setLoading(false);
       }
@@ -75,34 +98,33 @@ export default function DailyNutrition({ google_id }: DailyNutritionProps) {
   }
 
   if (!nutritionPlan) {
-    return <div className="p-4 text-center">No hay plan nutricional disponible</div>;
+    return (
+      <div className="p-4 text-center">No hay plan nutricional disponible</div>
+    );
   }
 
   return (
     <div className="p-4">
       <h2 className="text-xl font-bold mb-6">Tu Plan Nutricional</h2>
-      
+
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-        <MealCard 
-          title="Desayuno" 
-          meal={nutritionPlan.plan_alimenticio.desayuno} 
+        <MealCard
+          title="Desayuno"
+          meal={nutritionPlan.plan_alimenticio.desayuno}
         />
         <MealCard
           title="Snack Mañana"
           meal={nutritionPlan.plan_alimenticio.snack_manana}
         />
-        <MealCard 
-          title="Almuerzo" 
-          meal={nutritionPlan.plan_alimenticio.almuerzo} 
+        <MealCard
+          title="Almuerzo"
+          meal={nutritionPlan.plan_alimenticio.almuerzo}
         />
         <MealCard
           title="Snack Tarde"
           meal={nutritionPlan.plan_alimenticio.snack_tarde}
         />
-        <MealCard 
-          title="Cena" 
-          meal={nutritionPlan.plan_alimenticio.cena} 
-        />
+        <MealCard title="Cena" meal={nutritionPlan.plan_alimenticio.cena} />
       </div>
 
       <div className="mt-6 border rounded-lg p-4 bg-gray-50">
