@@ -47,7 +47,7 @@ export function middleware(req: NextRequest) {
     "/configuracion",
     "/analisisVisualIA/reconocimientoMaq",
     "/analisisVisualIA/analisisPla",
-    "/analisisVisualIA/informacionAli",
+    "/analisisVisualIA/reconocimientoAli",
     "/analisisVisualIA/escaneoNutri",
     
 

@@ -17,7 +17,7 @@ export function QuickAccess() {
       subItems: [
         { name: "Reconocimiento de máquinas", href: "/analisisVisualIA/reconocimientoMaq", icon: Camera },
         { name: "Análisis de platos", href: "/analisisVisualIA/analisisPla", icon: Utensils },
-        { name: "Información de alimentos", href: "/analisisVisualIA/informacionAli", icon: Info },
+        { name: "Información de alimentos", href: "/analisisVisualIA/reconocimientoAli", icon: Info },
         { name: "Escaneo nutricional", href: "/analisisVisualIA/escaneoNutri", icon: QrCode},
       ],
     },
