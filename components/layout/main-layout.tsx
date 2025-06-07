@@ -109,7 +109,7 @@ export function MainLayout({ children }: MainLayoutProps) {
         { name: "Reconocimiento de máquinas", href: "/analisisVisualIA/reconocimientoMaq", icon: Camera },
         { name: "Análisis de platos", href: "/analisisVisualIA/analisisPla", icon: Utensils },
         { name: "Información de alimentos", href: "/analisisVisualIA/reconocimientoAli", icon: ChefHat  },
-        { name: "Escaneo nutricional", href: "/analisisVisualIA/escaneoNutri", icon: QrCode},
+        { name: "Escaneo nutricional", href: "/analisisVisualIA/escaneoNutricional", icon: QrCode},
       ],
     },
   ]
