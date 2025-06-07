@@ -11,6 +11,7 @@ import { Activity, Calendar, CheckCircle, Dumbbell, Flame, Heart, TrendingUp, Tr
 import { getDailyExerciseLog, logExercise, updateLogByUserAndDate } from "@/services/logs_exercises/logs";
 import { getID } from "../../services/login/authService";
 import { getDailyPlan } from "@/services/training/trainingService";
+import { toast, ToastContainer } from "react-toastify";
 import WeeklyCalendarAlt from "@/app/resumen/resumen"
 
 export default function DashboardPage() {
@@ -51,6 +52,8 @@ export default function DashboardPage() {
       .join(" ")
   }
 
+  
+
   const userName = userData?.name ? formatName(userData.name) : "Usuario"
 
   useEffect(() => {
@@ -71,7 +74,32 @@ export default function DashboardPage() {
           completed: false,
         };
         const fetchedRoutine = await getDailyPlan(fetchedId);
+        console.log("Fetched Routine:", fetchedRoutine);
         setRoutine(fetchedRoutine);
+
+        // Mostrar alerta con la rutina del día
+         if (fetchedRoutine?.routine?.titulo && fetchedRoutine?.routine?.musculos) {
+          const titulo = fetchedRoutine.routine.titulo;
+          const musculos = fetchedRoutine.routine.musculos.join(", ");
+          toast(
+            <div className="text-sm text-gray-800">
+              ¡Tu rutina de hoy es{" "}
+              <span className="font-semibold text-green-700">"{titulo}"</span> y trabajas:{" "}
+              <span className="font-semibold text-green-700">{musculos}</span>!
+            </div>,
+            {
+              position: "top-right",
+              autoClose: 5000,
+              hideProgressBar: false,
+              closeOnClick: true,
+              pauseOnHover: true,
+              draggable: true,
+              progress: undefined,
+              className: "bg-green-100 rounded-lg px-4 py-3 shadow-md",
+
+            }
+          );
+        }
 
         const user_log = await getDailyExerciseLog(fetchedId, today);
 
@@ -80,6 +108,7 @@ export default function DashboardPage() {
       } catch (error) {
         console.error("Error initializing log:", error);
       }
+      
     };
 
     initializeLog();

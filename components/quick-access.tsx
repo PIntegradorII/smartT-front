@@ -1,5 +1,5 @@
 import Link from "next/link"
-import { BarChart3, Dumbbell, Settings, User, Sparkles, Utensils, Ruler, Brain, QrCode, Info, Camera } from "lucide-react"
+import { BarChart3, Dumbbell, Settings, User, Sparkles, Utensils, Ruler, Brain, QrCode, Info, Camera,ChefHat } from "lucide-react"
 import { Card, CardContent } from "@/components/ui/card"
 
 export function QuickAccess() {
@@ -17,7 +17,7 @@ export function QuickAccess() {
       subItems: [
         { name: "Reconocimiento de máquinas", href: "/analisisVisualIA/reconocimientoMaq", icon: Camera },
         { name: "Análisis de platos", href: "/analisisVisualIA/analisisPla", icon: Utensils },
-        { name: "Información de alimentos", href: "/analisisVisualIA/informacionAli", icon: Info },
+        { name: "Información de alimentos", href: "/analisisVisualIA/reconocimientoAli", icon: ChefHat },
         { name: "Escaneo nutricional", href: "/analisisVisualIA/escaneoNutricional", icon: QrCode},
       ],
     },
